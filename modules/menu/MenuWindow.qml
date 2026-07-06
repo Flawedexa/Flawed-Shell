@@ -26,7 +26,7 @@ PanelWindow {
     screen:        targetScreen
     color:         "transparent"
     exclusiveZone: -1
-    WlrLayershell.namespace: "silere-menu"
+    WlrLayershell.namespace: "flawed-menu"
     WlrLayershell.keyboardFocus: MenuState.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     // Unmap the full-screen surface while the menu is closed so it isn't holding a
@@ -105,7 +105,7 @@ PanelWindow {
     function runPower(command, failTitle): void {
         if (!command || command.length === 0) return
         if (!SystemTools.hasNotifySend) { Quickshell.execDetached(command); return }
-        const note = "notify-send --urgency=critical --app-name=silere-shell " +
+        const note = "notify-send --urgency=critical --app-name=Flawed-Shell " +
             _shq(failTitle) + " " + _shq("It may require authorization or be blocked by a running task.")
         const argv = ["bash", "-c", '"$@" || ' + note, "bash"]
         for (let i = 0; i < command.length; i++) argv.push(String(command[i]))

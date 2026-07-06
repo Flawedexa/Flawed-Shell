@@ -17,7 +17,7 @@ PanelWindow {
     color:          "transparent"
     exclusiveZone:  -1
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: "silere-osd"
+    WlrLayershell.namespace: "flawed-osd"
 
     implicitHeight: 150
 

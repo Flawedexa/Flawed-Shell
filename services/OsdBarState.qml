@@ -367,7 +367,7 @@ Singleton {
         }
     }
 
-    // One-time at startup: another notification daemon holds the bus, so silere's
+    // One-time at startup: another notification daemon holds the bus, so Flawed's
     // notifications are dead. Flash it once (NotifWatch also logs the culprit).
     Connections {
         target: NotifWatch

@@ -317,7 +317,7 @@ Item {
         if (item) item.forceActiveFocus()
     }
 
-    // The active diamond is the Silere Anchor: a tap opens the menu beneath the
+    // The active diamond is the Flawed Anchor: a tap opens the menu beneath the
     // gem. Map the gem centre to screen coords so the panel lines up under it.
     function openAnchorMenu(): void {
         const pt = root.mapToItem(null, diamond.x + diamond.width / 2, 0)
@@ -438,7 +438,7 @@ Item {
         scale: _hoverScale * _tapScale * _moveScale * _specialScale
         transformOrigin: Item.Center
 
-        // ── Silere anchor ─────────────────────────────────────────────────────
+        // ── Flawed anchor ─────────────────────────────────────────────────────
         // Ambient aura: only really wakes up for hover/menu/special/move, so the
         // active workspace keeps a premium "gem" feel without turning into a blob.
         Rectangle {

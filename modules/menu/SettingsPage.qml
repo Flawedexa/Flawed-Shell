@@ -1556,7 +1556,7 @@ PageShell {
                                     glyph: ShellUpdate.checking || ShellUpdate.applying ? "󰓦"
                                         : ShellUpdate.lastCheckError.length > 0 || ShellUpdate.lastApplyError.length > 0 ? "󰀦"
                                         : ShellUpdate.pending ? "󰚰" : "󰄬"
-                                    title: "Silere Shell"
+                                    title: "Flawed Shell"
                                     status: ShellUpdate.statusText
                                     meta: ShellUpdate.currentVersion.length > 0 ? "#" + ShellUpdate.currentVersion : ""
                                     detail: ShellUpdate.lastApplyError.length > 0 ? ShellUpdate.lastApplyError
@@ -1620,7 +1620,7 @@ PageShell {
                             SectionLabel { label: "AUTOMATIC CHECKS" }
                             SettingsCard {
                                 ToggleRow {
-                                    glyph: "󰥔"; label: "Daily Silere update check"
+                                    glyph: "󰥔"; label: "Daily Flawed update check"
                                     checked: ShellUpdate.timerEnabled
                                     enabled: !ShellUpdate.timerBusy
                                     available: ShellUpdate.timerSupported

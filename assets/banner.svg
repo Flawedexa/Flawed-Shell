@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="220" viewBox="0 0 1000 220" role="img" aria-label="silere shell — quiet by default.">
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="220" viewBox="0 0 1000 220" role="img" aria-label="Flawed Shell — quiet by default.">
   <defs>
-    <linearGradient id="g-silere" x1="0" y1="56" x2="0" y2="122" gradientUnits="userSpaceOnUse">
+    <linearGradient id="g-flawed" x1="0" y1="56" x2="0" y2="122" gradientUnits="userSpaceOnUse">
       <stop offset="0%"   stop-color="#f0f0f4"/>
       <stop offset="100%" stop-color="#8a8a9c"/>
     </linearGradient>
@@ -38,7 +38,7 @@
     fill="#c8c8e0"
     opacity="0.09"
     filter="url(#f-bloom)"
-  >silere shell</text>
+  >Flawed Shell</text>
 
   <!-- wordmark -->
   <text
@@ -47,8 +47,8 @@
     font-size="78"
     font-weight="700"
     text-anchor="middle"
-    fill="url(#g-silere)"
-  >silere <tspan fill="url(#g-shell)">shell</tspan></text>
+    fill="url(#g-flawed)"
+  >Flawed <tspan fill="url(#g-shell)">Shell</tspan></text>
 
   <!-- divider -->
   <line x1="290" y1="138" x2="710" y2="138" stroke="url(#g-div)" stroke-width="1"/>

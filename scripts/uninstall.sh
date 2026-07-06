@@ -56,7 +56,7 @@ _remove_block() {
         return 1
     fi
 
-    tmp="$(mktemp "$(dirname -- "$target")/.silere-uninstall.XXXXXX")" || return 1
+    tmp="$(mktemp "$(dirname -- "$target")/.flawed-uninstall.XXXXXX")" || return 1
     if ! awk -v begin="$begin" -v end="$end" '
         $0 == begin { removing = 1; next }
         $0 == end   { removing = 0; next }
@@ -90,16 +90,16 @@ _append_hypr_config_targets() {
     fi
 }
 
-if [ "${SILERE_SCRIPT_LIB_ONLY:-0}" = "1" ]; then
+if [ "${FLAWED_SCRIPT_LIB_ONLY:-0}" = "1" ]; then
     return 0 2>/dev/null || exit 0
 fi
 
 # ── header ───────────────────────────────────────────────────────────────────────
-printf "\n${BOLD}:: silere-shell uninstaller${R}\n"
+printf "\n${BOLD}:: Flawed-Shell uninstaller${R}\n"
 
 # ── legacy cava config ───────────────────────────────────────────────────────────
 _section "legacy cava config"
-CAVA_DST="$CONFIG_HOME/cava/silere-shell.conf"
+CAVA_DST="$CONFIG_HOME/cava/Flawed-Shell.conf"
 
 if [ -f "$CAVA_DST" ] || [ -f "${CAVA_DST}.bak" ]; then
     if _ask "Remove $CAVA_DST?"; then
@@ -113,7 +113,7 @@ fi
 
 # ── matugen template ─────────────────────────────────────────────────────────────
 _section "matugen template"
-TMPL_DST="$CONFIG_HOME/matugen/templates/silere-shell/Theme.qml"
+TMPL_DST="$CONFIG_HOME/matugen/templates/Flawed-Shell/Theme.qml"
 
 if [ -f "$TMPL_DST" ] || [ -f "${TMPL_DST}.bak" ]; then
     if _ask "Remove $TMPL_DST?"; then
@@ -130,10 +130,10 @@ fi
 _section "matugen config.toml"
 MATUGEN_CFG="$CONFIG_HOME/matugen/config.toml"
 
-if [ -f "$MATUGEN_CFG" ] && grep -qF '# silere-shell begin' "$MATUGEN_CFG"; then
-    _info "will remove silere-shell block from $MATUGEN_CFG"
-    if _ask "Remove silere-shell entry?"; then
-        if _remove_block "$MATUGEN_CFG" '# silere-shell begin' '# silere-shell end'; then
+if [ -f "$MATUGEN_CFG" ] && grep -qF '# Flawed-Shell begin' "$MATUGEN_CFG"; then
+    _info "will remove Flawed-Shell block from $MATUGEN_CFG"
+    if _ask "Remove Flawed-Shell entry?"; then
+        if _remove_block "$MATUGEN_CFG" '# Flawed-Shell begin' '# Flawed-Shell end'; then
             _ok "entry removed"
         fi
     else
@@ -148,9 +148,9 @@ elif _backup_restore_allowed "$MATUGEN_CFG"; then
         _skip "kept"
     fi
 elif [ -f "${MATUGEN_CFG}.bak" ]; then
-    _skip "live config has no Silere block; retained backup without restoring it"
+    _skip "live config has no Flawed block; retained backup without restoring it"
 else
-    _skip "no silere-shell entry found"
+    _skip "no Flawed-Shell entry found"
 fi
 
 # ── Hyprland autostart ───────────────────────────────────────────────────────────
@@ -168,7 +168,7 @@ AUTOSTART_FILES=(
 # execs.lua candidates.
 if [ -d "$CONFIG_HOME/hypr" ]; then
     while IFS= read -r -d '' f; do AUTOSTART_FILES+=("$f"); done < <(
-        grep -rlZF --include='*.conf' --include='*.lua' 'silere-shell begin' "$CONFIG_HOME/hypr" 2>/dev/null || true
+        grep -rlZF --include='*.conf' --include='*.lua' 'Flawed-Shell begin' "$CONFIG_HOME/hypr" 2>/dev/null || true
     )
 fi
 ACTIVE_HYPR_CONFIG="$(bash "$SCRIPT_DIR/install.sh" --hypr-config-path 2>/dev/null || true)"
@@ -181,7 +181,7 @@ for f in "${AUTOSTART_FILES[@]}"; do
     _seen_autostart[$f]=1
     has_block=false
     has_backup=false
-    grep -qF 'silere-shell begin' "$f" 2>/dev/null && has_block=true
+    grep -qF 'Flawed-Shell begin' "$f" 2>/dev/null && has_block=true
     [ -f "${f}.bak" ] && has_backup=true
 
     if ! $has_block && ! $has_backup; then continue; fi
@@ -190,12 +190,12 @@ for f in "${AUTOSTART_FILES[@]}"; do
     # Remove only our marked block when the live file still exists. Restoring
     # the install-time backup here would discard unrelated edits made later.
     if $has_block; then
-        _info "silere-shell block found in $f"
+        _info "Flawed-Shell block found in $f"
         if _ask "Remove autostart block from $(basename "$f")?"; then
             if [[ "$f" == *.lua ]]; then
-                _remove_block "$f" '-- silere-shell begin' '-- silere-shell end' && _ok "removed from $f"
+                _remove_block "$f" '-- Flawed-Shell begin' '-- Flawed-Shell end' && _ok "removed from $f"
             else
-                _remove_block "$f" '# silere-shell begin' '# silere-shell end' && _ok "removed from $f"
+                _remove_block "$f" '# Flawed-Shell begin' '# Flawed-Shell end' && _ok "removed from $f"
             fi
         else
             _skip "kept"
@@ -209,7 +209,7 @@ for f in "${AUTOSTART_FILES[@]}"; do
             _skip "kept"
         fi
     elif $has_backup; then
-        _skip "live file has no Silere block; retained backup without restoring it"
+        _skip "live file has no Flawed block; retained backup without restoring it"
     fi
 done
 
@@ -219,12 +219,12 @@ $found_any || _skip "no autostart entries found"
 _section "auto-update timer"
 SYSTEMD_USER="$CONFIG_HOME/systemd/user"
 
-if [ -f "$SYSTEMD_USER/silere-update.timer" ] || [ -f "$SYSTEMD_USER/silere-update.service" ]; then
+if [ -f "$SYSTEMD_USER/flawed-update.timer" ] || [ -f "$SYSTEMD_USER/flawed-update.service" ]; then
     if _ask "Remove auto-update timer?"; then
         if command -v systemctl >/dev/null 2>&1; then
-            systemctl --user disable --now silere-update.timer 2>/dev/null || true
+            systemctl --user disable --now flawed-update.timer 2>/dev/null || true
         fi
-        rm -f "$SYSTEMD_USER/silere-update.timer" "$SYSTEMD_USER/silere-update.service"
+        rm -f "$SYSTEMD_USER/flawed-update.timer" "$SYSTEMD_USER/flawed-update.service"
         command -v systemctl >/dev/null 2>&1 && systemctl --user daemon-reload || true
         _ok "removed"
     else
@@ -237,4 +237,4 @@ fi
 # ── done ─────────────────────────────────────────────────────────────────────────
 printf "\n${BOLD}==> done${R}\n"
 _warn "the repo directory was not deleted"
-printf "  to fully remove silere: ${DIM}rm -rf %s${R}\n\n" "$(cd "$(dirname "$0")/.." && pwd)"
+printf "  to fully remove Flawed-Shell: ${DIM}rm -rf %s${R}\n\n" "$(cd "$(dirname "$0")/.." && pwd)"

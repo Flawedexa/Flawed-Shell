@@ -44,7 +44,7 @@ PanelWindow {
             return true
         }
 
-        console.warn("silere-shell: tray menu entry has no", signalName, "signal")
+        console.warn("Flawed-Shell: tray menu entry has no", signalName, "signal")
         return false
     }
     function _sendRootOpened(): void {
@@ -83,7 +83,7 @@ PanelWindow {
     screen:        targetScreen
     color:         "transparent"
     exclusiveZone: -1
-    WlrLayershell.namespace: "silere-traymenu"
+    WlrLayershell.namespace: "flawed-traymenu"
     WlrLayershell.keyboardFocus: TrayMenuState.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     visible: TrayMenuState.open || card.opacity > 0.001

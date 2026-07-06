@@ -22,7 +22,7 @@ PanelWindow {
     screen:        targetScreen
     color:         "transparent"
     exclusiveZone: -1
-    WlrLayershell.namespace: "silere-quickactions"
+    WlrLayershell.namespace: "flawed-quickactions"
     WlrLayershell.keyboardFocus: QuickActionsState.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     visible: QuickActionsState.open || card.opacity > 0.001

@@ -229,7 +229,7 @@ Singleton {
     readonly property string _cavaCommandScript: {
         const cfg = _cavaConfigText.replace(/'/g, "'\\''")
         return "base=\"${XDG_RUNTIME_DIR:-/tmp}\"; uid=\"${UID:-$(id -u 2>/dev/null || echo user)}\"; " +
-               "dir=\"$base/silere-shell-$uid\"; umask 077; mkdir -p \"$dir\" || exit 1; " +
+               "dir=\"$base/Flawed-Shell-$uid\"; umask 077; mkdir -p \"$dir\" || exit 1; " +
                "tmp=$(mktemp \"$dir/cava.XXXXXX.conf\") || exit 1; " +
                "printf '%s' '" + cfg + "' > \"$tmp\" || { rm -f \"$tmp\"; exit 1; }; " +
                "cava -p \"$tmp\"; code=$?; rm -f \"$tmp\"; exit $code"

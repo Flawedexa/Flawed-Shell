@@ -114,7 +114,7 @@ rss_peak=$((rss_peak_kb / 1024))
 tree_avg=$((tree_sum_kb / n / 1024))
 tree_peak=$((tree_peak_kb / 1024))
 
-# PSS apportions shared Qt/driver mappings; USS is memory private to Silere.
+# PSS apportions shared Qt/driver mappings; USS is memory private to Flawed.
 pss="-"
 uss="-"
 if [ -r "/proc/$pid/smaps_rollup" ]; then

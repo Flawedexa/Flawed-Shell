@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_URL="https://github.com/s3rven/silere-shell.git"
+REPO_URL="https://github.com/Flawedexa/Flawed-Shell.git"
 CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-DEFAULT_DIR="$CONFIG_HOME/silere-shell"
+DEFAULT_DIR="$CONFIG_HOME/Flawed-Shell"
 
 # ── colors ──────────────────────────────────────────────────────────────────────
 if [ -t 1 ]; then
@@ -67,7 +67,7 @@ source "$(dirname -- "${BASH_SOURCE[0]}")/lib/qml-modules.sh"
 # (Quickshell and terminals are normally descendants of their compositor), then
 # accept a same-user process only when it is the sole candidate. Never guess
 # between multiple sessions.
-_HYPR_PROC_ROOT="${SILERE_PROC_ROOT:-/proc}"
+_HYPR_PROC_ROOT="${FLAWED_PROC_ROOT:-/proc}"
 
 _proc_ppid() {
     local pid="$1" stat rest
@@ -83,7 +83,7 @@ _same_user_process() {
 }
 
 _find_hyprland_pid() {
-    local pid="${SILERE_PARENT_PID:-$PPID}" parent comm candidate="" count=0
+    local pid="${FLAWED_PARENT_PID:-$PPID}" parent comm candidate="" count=0
 
     while [[ "$pid" =~ ^[0-9]+$ ]] && [ "$pid" -gt 1 ]; do
         if _same_user_process "$pid"; then
@@ -139,8 +139,8 @@ _hypr_config_for_pid() {
 
 _hypr_config_path() {
     local config pid
-    if [ -n "${SILERE_HYPR_CONFIG:-}" ]; then
-        _normalize_hypr_path "$SILERE_HYPR_CONFIG" "$PWD"
+    if [ -n "${FLAWED_HYPR_CONFIG:-}" ]; then
+        _normalize_hypr_path "$FLAWED_HYPR_CONFIG" "$PWD"
         return
     fi
     pid="$(_find_hyprland_pid 2>/dev/null || true)"
@@ -170,7 +170,7 @@ case "${1:-}" in
         exit 1
         ;;
 esac
-if [ "${SILERE_SCRIPT_LIB_ONLY:-0}" = "1" ]; then
+if [ "${FLAWED_SCRIPT_LIB_ONLY:-0}" = "1" ]; then
     return 0 2>/dev/null || exit 0
 fi
 
@@ -262,7 +262,7 @@ trap '_cleanup' EXIT
 trap '_cleanup; exit 130' INT TERM
 
 # ── header ───────────────────────────────────────────────────────────────────────
-printf "\n${BOLD}:: silere-shell installer${R}\n"
+printf "\n${BOLD}:: Flawed-Shell installer${R}\n"
 
 # ── dependencies ─────────────────────────────────────────────────────────────────
 _section "checking dependencies"
@@ -274,19 +274,19 @@ has_qs=true
 if command -v qs >/dev/null 2>&1; then
     _ok "quickshell"
 else
-    _warn "quickshell not found — install it before launching silere"
+    _warn "quickshell not found — install it before launching Flawed-Shell"
     has_qs=false
 fi
 
 qs_modules_ok=true
 if $has_qs; then
-    for module in "${SILERE_REQUIRED_QML_MODULES[@]}"; do
+    for module in "${FLAWED_REQUIRED_QML_MODULES[@]}"; do
         if ! _qml_module_available "$module"; then
             _warn "required Quickshell module missing: $module"
             qs_modules_ok=false
         fi
     done
-    $qs_modules_ok || _warn "this Quickshell build cannot load Silere; install the full current package"
+    $qs_modules_ok || _warn "this Quickshell build cannot load Flawed; install the full current package"
 fi
 
 has_matugen=true
@@ -375,7 +375,7 @@ else
     if _font_download_tools_ready && _ask "Download and install it now?"; then
         FONT_DIR="$HOME/.local/share/fonts/JetBrainsMono"
         mkdir -p "$FONT_DIR"
-        font_tmp="$(mktemp "${TMPDIR:-/tmp}/silere-font.XXXXXX.tar.xz")"
+        font_tmp="$(mktemp "${TMPDIR:-/tmp}/flawed-font.XXXXXX.tar.xz")"
         spin_start "downloading..."
         if curl -fsSL -o "$font_tmp" "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz" \
             && tar -xJ -f "$font_tmp" -C "$FONT_DIR" --wildcards "*.ttf" 2>/dev/null; then
@@ -390,12 +390,12 @@ else
             _warn "download failed — install JetBrainsMono Nerd Font manually"
         fi
     else
-        _skip "skipped — install a Nerd Font manually before launching silere"
+        _skip "skipped — install a Nerd Font manually before launching Flawed-Shell"
     fi
 fi
 
 # ── clone ────────────────────────────────────────────────────────────────────────
-_section "silere-shell"
+_section "Flawed-Shell"
 
 printf "  ${CYAN}::${R}  Install to: ${CYAN}%s${R}\n" "$DEFAULT_DIR"
 INSTALL_DIR="$(_ask_path)"
@@ -436,7 +436,7 @@ ROOT="$INSTALL_DIR"
 did_tmpl=false did_toml=false did_autostart=false did_update=false
 ROOT_PRINTF_BYTES="$(_shell_quote "$(_shell_printf_bytes "$ROOT")")"
 MATUGEN_OUTPUT_TOML="$(_toml_basic_string "$ROOT/config/MatugenTheme.qml")"
-MATUGEN_INPUT_TOML="$(_toml_basic_string "$CONFIG_HOME/matugen/templates/silere-shell/Theme.qml")"
+MATUGEN_INPUT_TOML="$(_toml_basic_string "$CONFIG_HOME/matugen/templates/Flawed-Shell/Theme.qml")"
 
 # Seed the generated theme from the bundled default so the shell themes
 # correctly before matugen has run. matugen later overwrites this file.
@@ -447,7 +447,7 @@ fi
 # ── matugen template ─────────────────────────────────────────────────────────────
 _section "matugen template"
 TMPL_SRC="$ROOT/assets/matugen-theme.qml"
-TMPL_DST="$CONFIG_HOME/matugen/templates/silere-shell/Theme.qml"
+TMPL_DST="$CONFIG_HOME/matugen/templates/Flawed-Shell/Theme.qml"
 if ! $has_matugen; then
     _skip "matugen not installed"
 elif _install_file "matugen template" "$TMPL_SRC" "$TMPL_DST"; then
@@ -460,7 +460,7 @@ MATUGEN_CFG="$CONFIG_HOME/matugen/config.toml"
 
 if ! $has_matugen; then
     _skip "matugen not installed"
-elif [ -f "$MATUGEN_CFG" ] && grep -q '# silere-shell begin' "$MATUGEN_CFG"; then
+elif [ -f "$MATUGEN_CFG" ] && grep -q '# Flawed-Shell begin' "$MATUGEN_CFG"; then
     _ok "entry already present"
 else
     if _ask "Add entry to $MATUGEN_CFG?"; then
@@ -471,11 +471,11 @@ else
         $cfg_existed && _backup "$MATUGEN_CFG"
         cat >> "$MATUGEN_CFG" <<EOF
 
-# silere-shell begin
-[templates.silere-shell]
+# Flawed-Shell begin
+[templates.Flawed-Shell]
 input_path  = $MATUGEN_INPUT_TOML
 output_path = $MATUGEN_OUTPUT_TOML
-# silere-shell end
+# Flawed-Shell end
 EOF
         _ok "entry added"; did_toml=true
     else
@@ -531,7 +531,7 @@ EGL_ENV_ARG=""
 LAUNCH_CMD="{ sleep 1; env MALLOC_CONF=$MALLOC_TUNE_SHELL ${EGL_ENV_ARG}qs -p \"\$(printf '%b' $ROOT_PRINTF_BYTES)/shell.qml\"; }"
 LAUNCH_CMD_LUA="$(_lua_string "$LAUNCH_CMD")"
 
-_already_present() { grep -qF 'silere-shell begin' "$1" 2>/dev/null; }
+_already_present() { grep -qF 'Flawed-Shell begin' "$1" 2>/dev/null; }
 
 HYPR_DIR="$(dirname -- "${HYPR_CONFIG:-$CONFIG_HOME/hypr/hyprland.conf}")"
 
@@ -560,16 +560,16 @@ if [[ "$HYPR_CONFIG" == *.lua ]]; then
             _backup "$LUA_EXEC_FILE"
             cat >> "$LUA_EXEC_FILE" <<EOF
 
--- silere-shell begin
-local _silere_lib = require("hyprland.lib")
+-- Flawed-Shell begin
+local _flawed_lib = require("hyprland.lib")
 hl.on("hyprland.start", function()
-    _silere_lib.exec($LAUNCH_CMD_LUA)
+    _flawed_lib.exec($LAUNCH_CMD_LUA)
 end)
--- silere-shell end
+-- Flawed-Shell end
 EOF
             _ok "added to $LUA_EXEC_FILE"; did_autostart=true
         else
-            _skip "skipped — add manually: _silere_lib.exec($LAUNCH_CMD_LUA)"
+            _skip "skipped — add manually: _flawed_lib.exec($LAUNCH_CMD_LUA)"
         fi
     else
         _warn "Lua config detected but no execs.lua found"
@@ -584,9 +584,9 @@ elif [[ "$HYPR_CONFIG" == *.conf ]]; then
             _backup "$HYPR_CONFIG"
             cat >> "$HYPR_CONFIG" <<EOF
 
-# silere-shell begin
+# Flawed-Shell begin
 exec-once = $LAUNCH_CMD
-# silere-shell end
+# Flawed-Shell end
 EOF
             _ok "added"; did_autostart=true
         else
@@ -605,10 +605,10 @@ if ! command -v systemctl >/dev/null 2>&1; then
     _skip "systemctl not found"
 elif _ask "Install daily update-check timer (flags pending updates in the bar)?"; then
     if "$ROOT/scripts/update.sh" --timer-enable 2>/dev/null; then
-        _ok "enabled — checks for Silere updates and shows a bar badge when one is ready"
+        _ok "enabled — checks for Flawed updates and shows a bar badge when one is ready"
         did_update=true
     else
-        _warn "units installed but enable failed — run: systemctl --user enable --now silere-update.timer"
+        _warn "units installed but enable failed — run: systemctl --user enable --now flawed-update.timer"
     fi
 else
     _skip "skipped — enable later with: $ROOT/scripts/update.sh --timer-enable"
@@ -623,10 +623,10 @@ $did_toml      && printf "    ${GREEN}ok${R}      matugen toml\n"     || printf 
 $did_autostart && printf "    ${GREEN}ok${R}      autostart\n"        || printf "    ${DIM}skip${R}    autostart\n"
 $did_update    && printf "    ${GREEN}ok${R}      auto-update timer\n" || printf "    ${DIM}skip${R}    auto-update timer\n"
 if $has_qs && $qs_modules_ok; then
-    printf "\n  restart Hyprland to launch silere\n"
+    printf "\n  restart Hyprland to launch Flawed-Shell\n"
 elif $has_qs; then
     printf "\n  ${YELLOW}install a complete current Quickshell build${R}, then restart Hyprland\n"
 else
-    printf "\n  ${YELLOW}install Quickshell${R}, then restart Hyprland to launch silere\n"
+    printf "\n  ${YELLOW}install Quickshell${R}, then restart Hyprland to launch Flawed-Shell\n"
 fi
 printf "  to uninstall: ${DIM}%s/scripts/uninstall.sh${R}\n\n" "$ROOT"

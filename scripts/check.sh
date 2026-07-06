@@ -158,7 +158,7 @@ source "$ROOT/scripts/lib/qml-modules.sh"
 require_qml_module() {
   local module="$1" rel found=""
   rel="${module//./\/}/qmldir"
-  for _d in "${_silere_qml_import_roots[@]}"; do
+  for _d in "${_flawed_qml_import_roots[@]}"; do
     if [ -f "$_d/$rel" ]; then found="$_d/$rel"; break; fi
   done
   if [ -n "$found" ]; then
@@ -168,7 +168,7 @@ require_qml_module() {
   fi
 }
 
-for _module in "${SILERE_REQUIRED_QML_MODULES[@]}"; do
+for _module in "${FLAWED_REQUIRED_QML_MODULES[@]}"; do
   require_qml_module "$_module"
 done
 
@@ -216,17 +216,17 @@ if command -v matugen >/dev/null 2>&1; then
   else
     fail "theme" "config/MatugenTheme.default.qml missing"
   fi
-  _tmpl="$_cfg_home/matugen/templates/silere-shell/Theme.qml"
+  _tmpl="$_cfg_home/matugen/templates/Flawed-Shell/Theme.qml"
   if [ -f "$_tmpl" ]; then
     ok "matugen tmpl" "$_tmpl"
   else
     warn "matugen tmpl" "template missing — run installer or: cp assets/matugen-theme.qml $_tmpl"
   fi
   _matugen_cfg="$_cfg_home/matugen/config.toml"
-  if [ -f "$_matugen_cfg" ] && grep -q '# silere-shell begin' "$_matugen_cfg"; then
-    ok "matugen cfg" "silere-shell entry present in config.toml"
+  if [ -f "$_matugen_cfg" ] && grep -q '# Flawed-Shell begin' "$_matugen_cfg"; then
+    ok "matugen cfg" "Flawed-Shell entry present in config.toml"
   else
-    warn "matugen cfg" "silere-shell block missing from $_matugen_cfg — run installer"
+    warn "matugen cfg" "Flawed-Shell block missing from $_matugen_cfg — run installer"
   fi
 fi
 
@@ -267,7 +267,7 @@ if command -v qs >/dev/null 2>&1; then
       _seeded_theme=true
     fi
     code=0
-    smoke_log="$(mktemp "${TMPDIR:-/tmp}/silere-qs-smoke.XXXXXX.log")"
+    smoke_log="$(mktemp "${TMPDIR:-/tmp}/flawed-qs-smoke.XXXXXX.log")"
     timeout 5s qs -p shell.qml --no-color >"$smoke_log" 2>&1 || code=$?
     if [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then
       if grep -qE 'Failed to create wl_display|could not connect to display|no Qt platform plugin could be initialized' "$smoke_log"; then

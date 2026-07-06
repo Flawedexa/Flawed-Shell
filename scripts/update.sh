@@ -4,22 +4,22 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/silere-shell"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/Flawed-Shell"
 FLAG="$CACHE_DIR/update-pending"
-TIMER_UNIT="silere-update.timer"
-SERVICE_UNIT="silere-update.service"
+TIMER_UNIT="flawed-update.timer"
+SERVICE_UNIT="flawed-update.service"
 SYSTEMD_USER_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
 
 _notify() {
     command -v notify-send >/dev/null 2>&1 || return 0
     # Notifications are advisory. A missing/stale session bus must never turn a
     # successful update check or apply into a failed systemd unit.
-    notify-send -a "Silere Shell" "$@" >/dev/null 2>&1 || true
+    notify-send -a "Flawed Shell" "$@" >/dev/null 2>&1 || true
 }
 
 _fail() {
-    _notify -u critical "Silere update failed" "$1"
-    echo "silere-update: $1" >&2
+    _notify -u critical "Flawed update failed" "$1"
+    echo "flawed-update: $1" >&2
     exit 1
 }
 
@@ -34,7 +34,7 @@ _systemd_execstart() {
     escaped="${escaped//%/%%}"
     escaped="${escaped//&/\\&}"
     escaped="${escaped//|/\\|}"
-    printf '/bin/sh -c '\''exec "$1"'\'' silere-update "%s"\n' "$escaped"
+    printf '/bin/sh -c '\''exec "$1"'\'' flawed-update "%s"\n' "$escaped"
 }
 
 _timer_status() {
@@ -49,8 +49,8 @@ _timer_status() {
 
 _write_update_units() {
     local service_tmp timer_tmp
-    service_tmp="$(mktemp "$SYSTEMD_USER_DIR/.silere-update.service.XXXXXX")" || return 1
-    timer_tmp="$(mktemp "$SYSTEMD_USER_DIR/.silere-update.timer.XXXXXX")" || {
+    service_tmp="$(mktemp "$SYSTEMD_USER_DIR/.flawed-update.service.XXXXXX")" || return 1
+    timer_tmp="$(mktemp "$SYSTEMD_USER_DIR/.flawed-update.timer.XXXXXX")" || {
         rm -f "$service_tmp"
         return 1
     }
@@ -106,7 +106,7 @@ _exit_if_not_behind() {
     fi
 }
 
-if [ "${SILERE_SCRIPT_LIB_ONLY:-0}" = "1" ]; then
+if [ "${FLAWED_SCRIPT_LIB_ONLY:-0}" = "1" ]; then
     return 0 2>/dev/null || exit 0
 fi
 
@@ -139,7 +139,7 @@ if [ "${1:-}" = "--apply" ]; then
     _exit_if_not_behind "$local_rev" "$remote_rev" 0
     stashed=0
     if _has_local_changes; then
-        if ! git -C "$ROOT" stash push --include-untracked -m "silere-update pre-apply" >/dev/null; then
+        if ! git -C "$ROOT" stash push --include-untracked -m "flawed-update pre-apply" >/dev/null; then
             _fail "failed to stash local changes before applying update"
         fi
         stashed=1
@@ -157,15 +157,15 @@ if [ "${1:-}" = "--apply" ]; then
     fi
     rm -f "$FLAG"
     if [ "$stash_conflict" -eq 1 ]; then
-        _notify -u critical "Silere update applied with conflicts" "Your local changes conflicted and were kept in the stash — run 'git stash list' to find it, 'git stash pop' to retry"
+        _notify -u critical "Flawed update applied with conflicts" "Your local changes conflicted and were kept in the stash — run 'git stash list' to find it, 'git stash pop' to retry"
     fi
     count="$(git rev-list --count "${local_rev}..${remote_rev}")"
     plural="change"; [ "$count" -ne 1 ] && plural="changes"
     # systemd unit only exists on dev installs; exec-once users restart by hand
-    if systemctl --user is-active --quiet silere-shell.service 2>/dev/null; then
-        systemctl --user restart silere-shell.service
+    if systemctl --user is-active --quiet Flawed-Shell.service 2>/dev/null; then
+        systemctl --user restart Flawed-Shell.service
     else
-        _notify "Silere Shell updated" "$count new $plural — restart the shell to use it"
+        _notify "Flawed Shell updated" "$count new $plural — restart the shell to use it"
     fi
     exit 0
 fi
@@ -189,4 +189,4 @@ mkdir -p "$CACHE_DIR"
 } > "$FLAG"
 
 plural="change"; [ "$count" -ne 1 ] && plural="changes"
-_notify "Silere Shell update ready" "$count new $plural ready — install from the bar$([ -n "$summary" ] && printf '\n%s' "$summary")"
+_notify "Flawed Shell update ready" "$count new $plural ready — install from the bar$([ -n "$summary" ] && printf '\n%s' "$summary")"

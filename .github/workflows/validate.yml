@@ -28,7 +28,7 @@ jobs:
           set -euo pipefail
           qs --version
           source scripts/lib/qml-modules.sh
-          for module in "${SILERE_REQUIRED_QML_MODULES[@]}"; do
+          for module in "${FLAWED_REQUIRED_QML_MODULES[@]}"; do
             _qml_module_available "$module" || {
               echo "::error::required Quickshell service module is missing: $module"
               exit 1

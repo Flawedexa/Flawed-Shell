@@ -37,7 +37,7 @@ Singleton {
         const base = (env && String(env).length > 0)
             ? String(env)
             : String(Quickshell.env("HOME")) + "/.cache"
-        return base + "/silere-shell"
+        return base + "/Flawed-Shell"
     }
     readonly property string _script: Quickshell.shellDir + "/scripts/update.sh"
 
@@ -101,7 +101,7 @@ Singleton {
     function _lastOutputLine(out: string, err: string, fallback: string): string {
         const text = ((out || "") + "\n" + (err || "")).trim()
         const line = text.split(/\r?\n/).filter(function(s) { return s.length > 0 }).pop() || fallback
-        return line.replace(/^silere-update:\s*/, "")
+        return line.replace(/^flawed-update:\s*/, "")
     }
 
     Process {

@@ -59,7 +59,7 @@ Singleton {
     property int    tempHotThreshold:    90
     property int    batteryLowThreshold: 20
     property int    notifDefaultTimeout: 5000
-    property int    sysAlertTimeout:     10000  // auto-close (ms) for silere's battery/temp alert notifications; 0 = stay until clicked
+    property int    sysAlertTimeout:     10000  // auto-close (ms) for Flawed's battery/temp alert notifications; 0 = stay until clicked
     property bool   clockShowDate:       false
     property bool   barBorderVisible:    false
     property real   barLineStrength:     1.0
@@ -346,7 +346,7 @@ Singleton {
     Component.onDestruction: {
         _writeTimer.stop()
         if (!_configDirReady)
-            console.warn("silere-shell: saving settings before config dir is ready:", _configDir)
+            console.warn("Flawed-Shell: saving settings before config dir is ready:", _configDir)
         _save(true)   // blocking write, so the quit-time save actually lands
     }
 
@@ -364,7 +364,7 @@ Singleton {
         const base = (env && String(env).length > 0)
             ? String(env)
             : String(Quickshell.env("HOME")) + "/.config"
-        return base + "/silere-shell"
+        return base + "/Flawed-Shell"
     }
 
     function _ensureConfigDir(): void {
@@ -378,7 +378,7 @@ Singleton {
         onExited: (code) => {
             root._configDirReady = true
             if (code !== 0)
-                console.warn("silere-shell: failed to create settings directory:", root._configDir)
+                console.warn("Flawed-Shell: failed to create settings directory:", root._configDir)
             if (root._savePendingForDir) {
                 root._savePendingForDir = false
                 root._save()
@@ -410,7 +410,7 @@ Singleton {
                 const s = _schema[i]
                 if (j[s.k] !== undefined) _coerce(s, j[s.k])
             }
-        } catch(e) { console.warn("silere-shell: failed to parse settings.json, using defaults:", String(e)) }
+        } catch(e) { console.warn("Flawed-Shell: failed to parse settings.json, using defaults:", String(e)) }
         _loaded = true
     }
 

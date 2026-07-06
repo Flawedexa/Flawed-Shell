@@ -5,7 +5,7 @@ import Quickshell
 import Quickshell.Io
 
 // One-shot startup diagnostic: if another notification daemon (mako/dunst/swaync,
-// …) owns org.freedesktop.Notifications, silere's own server is queued and never
+// …) owns org.freedesktop.Notifications, Flawed's own server is queued and never
 // sees a notification. We surface the culprit so "notifications don't work" isn't
 // a silent mystery. OsdBarState watches `conflict` to flash a warning.
 Singleton {
@@ -52,8 +52,8 @@ Singleton {
             const name = (_out.text || "").trim()
             if (name.length === 0) return
             root.conflict = name
-            console.warn("silere-shell: notifications are owned by '" + name +
-                "', not silere — its notification server is inactive. Stop the other daemon to use silere's notifications.")
+            console.warn("Flawed-Shell: notifications are owned by '" + name +
+                "', not Flawed — its notification server is inactive. Stop the other daemon to use Flawed's notifications.")
         }
     }
 }

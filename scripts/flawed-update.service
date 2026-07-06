@@ -1,5 +1,5 @@
 [Unit]
-Description=Silere Shell update check
+Description=Flawed Shell update check
 After=network-online.target
 
 [Service]

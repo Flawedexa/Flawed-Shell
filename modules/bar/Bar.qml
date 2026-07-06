@@ -13,7 +13,7 @@ PanelWindow {
     required property ShellScreen targetScreen
     required property bool pickerActive
 
-    WlrLayershell.namespace: "silere-bar"
+    WlrLayershell.namespace: "flawed-bar"
 
     readonly property bool atBottom: ShellSettings.barPosition === "bottom"
     readonly property real cornerRadius: ShellSettings.barFloating && ShellSettings.barCornerStyle === "round"

@@ -28,7 +28,7 @@ PanelWindow {
     screen:        targetScreen
     color:         "transparent"
     exclusiveZone: -1
-    WlrLayershell.namespace: "silere-calendar"
+    WlrLayershell.namespace: "flawed-calendar"
     WlrLayershell.keyboardFocus: CalendarState.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     // Unmap the full-screen surface while closed so it isn't holding a screen-sized

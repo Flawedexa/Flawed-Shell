@@ -1,5 +1,5 @@
 [Unit]
-Description=Silere Shell update-check timer
+Description=Flawed Shell update-check timer
 
 [Timer]
 OnCalendar=daily

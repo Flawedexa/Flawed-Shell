@@ -51,7 +51,7 @@ find_qmllint() {
 source "$ROOT/scripts/lib/qml-modules.sh"
 find_qml_import_root() {
     local candidate
-    for candidate in "${_silere_qml_import_roots[@]}"; do
+    for candidate in "${_flawed_qml_import_roots[@]}"; do
         [ -d "$candidate" ] && { printf '%s\n' "$candidate"; return 0; }
     done
     return 1
@@ -68,7 +68,7 @@ if [ -z "$QML_IMPORT_ROOT" ]; then
     exit 0
 fi
 
-tmp="$(mktemp -d "${TMPDIR:-/tmp}/silere-qmlcache.XXXXXX")"
+tmp="$(mktemp -d "${TMPDIR:-/tmp}/flawed-qmlcache.XXXXXX")"
 seeded_theme=false
 cleanup() {
     if $seeded_theme; then rm -f "$ROOT/config/MatugenTheme.qml"; fi

@@ -24,7 +24,7 @@ Singleton {
             "--urgency=" + urgency,
             // explicit timeout so even critical alerts auto-dismiss; configurable (0 = stay)
             "--expire-time=" + ShellSettings.sysAlertTimeout,
-            "--app-name=silere-shell",
+            "--app-name=Flawed-Shell",
             summary,
             body
         ])

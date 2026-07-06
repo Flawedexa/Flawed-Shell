@@ -82,7 +82,7 @@ Singleton {
 
     PersistentProperties {
         id: _persist
-        reloadableId: "silereNotifications"
+        reloadableId: "flawedNotifications"
         property var  history: []
         property bool dnd: false
         property int  missedCount: 0

@@ -706,6 +706,16 @@ PageShell {
                         displayValue: Math.round(ShellSettings.barOpacity * 100) + "%"
                         onChanged: (v) => ShellSettings.barOpacity = v
                     }
+                    ToggleRow {
+                        glyph: "󰚥"; label: "Custom background"
+                        description: ShellSettings.barCustomColor ? ShellSettings.barCustomBackground.toUpperCase() : ""
+                        checked: ShellSettings.barCustomColor
+                        onToggled: {
+                            ShellSettings.barCustomColor = !ShellSettings.barCustomColor
+                            if (ShellSettings.barCustomColor && ShellSettings.barCustomBackground.length === 0)
+                                ShellSettings.barCustomBackground = "#131318"
+                        }
+                    }
                 }
 
                 SectionLabel { label: "FLOATING" }

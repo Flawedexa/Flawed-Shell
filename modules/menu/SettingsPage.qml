@@ -37,6 +37,7 @@ PageShell {
                 m[it.section] = { glyph: it.glyph, label: it.label, group: "" }
                     }
                 }
+            }
 
     readonly property string _battAlertMode: {
         const o = ShellSettings.osdBatteryWarn
@@ -476,9 +477,9 @@ PageShell {
                 SectionLabel { label: "BAR COLOUR" }
                 SettingsCard {
                     ToggleRow {
-                        glyph: "󰚥"; label: "Use wallpaper surface"
+                        glyph: "󰚥"; label: "Tinted bar"
                         description: ShellSettings.barCustomColor
-                            ? ("#" + root._hex2(MatugenTheme.surface.r) + root._hex2(MatugenTheme.surface.g) + root._hex2(MatugenTheme.surface.b)).toUpperCase()
+                            ? ("#" + root._hex2(MatugenTheme.accent.r) + root._hex2(MatugenTheme.accent.g) + root._hex2(MatugenTheme.accent.b)).toUpperCase()
                             : "#000000"
                         checked: ShellSettings.barCustomColor
                         onToggled: ShellSettings.barCustomColor = !ShellSettings.barCustomColor

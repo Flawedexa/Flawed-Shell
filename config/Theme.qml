@@ -33,7 +33,7 @@ Singleton {
                                         : withAlpha(mix(subtext, accent, 0.22), 0.17)
 
     readonly property color panel: ShellSettings.barCustomColor
-        ? withAlpha(surface, ShellSettings.barOpacity)
+        ? withAlpha(mix(background, accent, 0.25), ShellSettings.barOpacity)
         : withAlpha("#000000", ShellSettings.barOpacity)
     readonly property color popup: background
 

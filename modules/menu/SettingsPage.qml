@@ -707,16 +707,12 @@ PageShell {
                         onChanged: (v) => ShellSettings.barOpacity = v
                     }
                     ToggleRow {
-                        glyph: "󰚥"; label: "Custom background"
+                        glyph: "󰚥"; label: "Use accent as background"
                         description: ShellSettings.barCustomColor
-                            ? ShellSettings.barCustomBackground.toUpperCase()
+                            ? ("#" + root._hex2(MatugenTheme.accent.r) + root._hex2(MatugenTheme.accent.g) + root._hex2(MatugenTheme.accent.b)).toUpperCase()
                             : ("#" + root._hex2(MatugenTheme.background.r) + root._hex2(MatugenTheme.background.g) + root._hex2(MatugenTheme.background.b)).toUpperCase()
                         checked: ShellSettings.barCustomColor
-                        onToggled: {
-                            ShellSettings.barCustomColor = !ShellSettings.barCustomColor
-                            if (ShellSettings.barCustomColor && ShellSettings.barCustomBackground.length === 0)
-                                ShellSettings.barCustomBackground = "#131318"
-                        }
+                        onToggled: ShellSettings.barCustomColor = !ShellSettings.barCustomColor
                     }
                 }
 

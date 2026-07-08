@@ -32,9 +32,7 @@ Singleton {
     readonly property color outline: _n ? withAlpha(subtext, 0.14)
                                         : withAlpha(mix(subtext, accent, 0.22), 0.17)
 
-    readonly property color panel: ShellSettings.barCustomColor && ShellSettings.barCustomBackground.length > 0
-        ? withAlpha(ShellSettings.barCustomBackground, ShellSettings.barOpacity)
-        : withAlpha(background, ShellSettings.barOpacity)
+    readonly property color panel: withAlpha(ShellSettings.barCustomColor ? accent : background, ShellSettings.barOpacity)
     readonly property color popup: background
 
     // Tonal elevation: in dark mode depth reads from lighter-on-darker, so menu

@@ -89,8 +89,7 @@ Singleton {
     property real   barShadowStrength:   1.0      // scales the floating shadow's depth, 0.3-2.0
     property string barPosition:         "top"     // "top" | "bottom"
     property real   barOpacity:          0.82
-    property bool   barCustomColor:      false    // override bar background with a custom color
-    property string barCustomBackground: ""       // hex color e.g. "#131318" when barCustomColor is true
+    property bool   barCustomColor:      false    // use wallpaper accent instead of background
     property string barDisabledMonitors: ""        // comma-joined connector names whose bar is hidden
     property string overlayMonitor:      ""        // "" = follow focus; else a monitor connector name for notifs/OSD
 
@@ -291,7 +290,6 @@ Singleton {
         { k: "barPosition",         t: "enum", vals: ["top", "bottom"] },
         { k: "barOpacity",          t: "real", min: 0.4,  max: 1.0 },
         { k: "barCustomColor",      t: "bool" },
-        { k: "barCustomBackground", t: "re",   re: /^$|^#[0-9a-fA-F]{6}$/ },
         { k: "barDisabledMonitors", t: "re",   re: /^[A-Za-z0-9._,-]*$/ },
         { k: "overlayMonitor",      t: "re",   re: /^[A-Za-z0-9._-]*$/ },
         { k: "barWidgetOrderLeft",  t: "re",   re: /^[a-zA-Z]*(,[a-zA-Z]+)*$/ },

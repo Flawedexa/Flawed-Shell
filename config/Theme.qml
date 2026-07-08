@@ -35,9 +35,7 @@ Singleton {
     readonly property color panel: ShellSettings.barCustomColor
         ? withAlpha(mix(background, accent, 0.25), ShellSettings.barOpacity)
         : withAlpha("#000000", ShellSettings.barOpacity)
-    readonly property color popup: ShellSettings.barCustomColor
-        ? mix(background, accent, 0.25)
-        : background
+    readonly property color popup: background
 
     // Tonal elevation: in dark mode depth reads from lighter-on-darker, so menu
     // surfaces step UP from the base (~6/8% toward text) instead of blending into

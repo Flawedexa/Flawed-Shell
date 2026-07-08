@@ -35,10 +35,8 @@ PageShell {
                 }
             } else {
                 m[it.section] = { glyph: it.glyph, label: it.label, group: "" }
-            }
-        }
-        return m
-    }
+                    }
+                }
 
     readonly property string _battAlertMode: {
         const o = ShellSettings.osdBatteryWarn
@@ -475,6 +473,18 @@ PageShell {
                     }
                 }
 
+                SectionLabel { label: "BAR COLOUR" }
+                SettingsCard {
+                    ToggleRow {
+                        glyph: "󰚥"; label: "Use wallpaper surface"
+                        description: ShellSettings.barCustomColor
+                            ? ("#" + root._hex2(MatugenTheme.surface.r) + root._hex2(MatugenTheme.surface.g) + root._hex2(MatugenTheme.surface.b)).toUpperCase()
+                            : "#000000"
+                        checked: ShellSettings.barCustomColor
+                        onToggled: ShellSettings.barCustomColor = !ShellSettings.barCustomColor
+                    }
+                }
+
                 // Neutral off -> the shell themes from matugen. Show the live
                 // palette as proof it's working; if matugen isn't installed
                 // these are the bundled fallback tones, called out as such.
@@ -705,14 +715,6 @@ PageShell {
                         min: 0.4; max: 1.0; step: 0.02
                         displayValue: Math.round(ShellSettings.barOpacity * 100) + "%"
                         onChanged: (v) => ShellSettings.barOpacity = v
-                    }
-                    ToggleRow {
-                        glyph: "󰚥"; label: "Use accent as background"
-                        description: ShellSettings.barCustomColor
-                            ? ("#" + root._hex2(MatugenTheme.accent.r) + root._hex2(MatugenTheme.accent.g) + root._hex2(MatugenTheme.accent.b)).toUpperCase()
-                            : ("#" + root._hex2(MatugenTheme.background.r) + root._hex2(MatugenTheme.background.g) + root._hex2(MatugenTheme.background.b)).toUpperCase()
-                        checked: ShellSettings.barCustomColor
-                        onToggled: ShellSettings.barCustomColor = !ShellSettings.barCustomColor
                     }
                 }
 

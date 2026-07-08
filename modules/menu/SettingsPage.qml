@@ -708,7 +708,9 @@ PageShell {
                     }
                     ToggleRow {
                         glyph: "󰚥"; label: "Custom background"
-                        description: ShellSettings.barCustomColor ? ShellSettings.barCustomBackground.toUpperCase() : ""
+                        description: ShellSettings.barCustomColor
+                            ? ShellSettings.barCustomBackground.toUpperCase()
+                            : ("#" + root._hex2(MatugenTheme.background.r) + root._hex2(MatugenTheme.background.g) + root._hex2(MatugenTheme.background.b)).toUpperCase()
                         checked: ShellSettings.barCustomColor
                         onToggled: {
                             ShellSettings.barCustomColor = !ShellSettings.barCustomColor

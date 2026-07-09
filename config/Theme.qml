@@ -36,22 +36,28 @@ Singleton {
     readonly property color panel: ShellSettings.barCustomColor
         ? withAlpha(mix(background, accent, 0.25), ShellSettings.barOpacity)
         : withAlpha("#000000", ShellSettings.barOpacity)
-    readonly property color popup: withAlpha(background, ShellSettings.menuOpacity)
+
+    // When base tone is "auto" the menu picks up the same accent-tinted background
+    // the bar uses with barCustomColor, so the whole shell reads as one surface.
+    readonly property color _menuBg: ShellSettings.baseTone === "auto"
+        ? mix(background, accent, 0.25)
+        : background
+    readonly property color popup: withAlpha(_menuBg, ShellSettings.menuOpacity)
 
     // Tonal elevation: in dark mode depth reads from lighter-on-darker, so menu
     // surfaces step UP from the base (~6/8% toward text) instead of blending into
     // it. Cards/panels = L1, interactive tiles = a hair higher.
-    readonly property color menuPane:        _n ? withAlpha(mix(background, text, 0.030), ShellSettings.menuOpacity)
-                                                : withAlpha(mix(background, surface, 0.18), ShellSettings.menuOpacity)
-    readonly property color menuCard:        _n ? withAlpha(mix(background, text, 0.060), ShellSettings.menuOpacity)
-                                                : withAlpha(mix(background, text, 0.07), ShellSettings.menuOpacity)
+    readonly property color menuPane:        _n ? withAlpha(mix(_menuBg, text, 0.030), ShellSettings.menuOpacity)
+                                                : withAlpha(mix(_menuBg, surface, 0.18), ShellSettings.menuOpacity)
+    readonly property color menuCard:        _n ? withAlpha(mix(_menuBg, text, 0.060), ShellSettings.menuOpacity)
+                                                : withAlpha(mix(_menuBg, text, 0.07), ShellSettings.menuOpacity)
     readonly property color menuCardBorder:  _n ? withAlpha(subtext, 0.105)
                                                 : withAlpha(mix(subtext, accent, 0.22), 0.17)
     readonly property color menuDivider:     _n ? withAlpha(subtext, 0.075)
                                                 : withAlpha(subtext, 0.085)
     readonly property color menuHover:       accent
-    readonly property color menuControl:     _n ? withAlpha(mix(background, text, 0.090), ShellSettings.menuOpacity)
-                                                : withAlpha(mix(background, text, 0.09), ShellSettings.menuOpacity)
+    readonly property color menuControl:     _n ? withAlpha(mix(_menuBg, text, 0.090), ShellSettings.menuOpacity)
+                                                : withAlpha(mix(_menuBg, text, 0.09), ShellSettings.menuOpacity)
     readonly property color menuControlLine: _n ? withAlpha(subtext, 0.115)
                                                 : withAlpha(subtext, 0.135)
     readonly property color menuControlLineHot: _n ? withAlpha(subtext, 0.18)

@@ -5,7 +5,6 @@ import "../../../services"
 import "../../common"
 
 Pill {
-    show: true
     glyph: "󰀻"
     text:  expanded ? "Apps" : ""
     accessibleName: "Application launcher"

@@ -322,7 +322,7 @@ PanelWindow {
             },
             State {
                 name: "visible"
-                PropertyChanges { target: panel; menuScale: 1.0; edgeOffset: 0; opacity: 1 }
+                PropertyChanges { target: panel; menuScale: 1.0; edgeOffset: 0; opacity: ShellSettings.menuOpacity }
             }
         ]
 
@@ -342,7 +342,7 @@ PanelWindow {
                     }
                     NumberAnimation {
                         target: panel; property: "opacity"
-                        to: 1.0; duration: Motion.popInFade; easing.type: Easing.OutCubic
+                        to: ShellSettings.menuOpacity; duration: Motion.popInFade; easing.type: Easing.OutCubic
                     }
                 }
             },

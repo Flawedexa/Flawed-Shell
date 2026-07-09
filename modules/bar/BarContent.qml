@@ -52,12 +52,13 @@ Item {
     Component { id: _cBrightness;  BrightnessWidget { anchors.verticalCenter: parent.verticalCenter; height: root.height } }
     Component { id: _cBattery;     BatteryWidget    { anchors.verticalCenter: parent.verticalCenter; height: root.height } }
     Component { id: _cMedia;       MediaWidget      { anchors.verticalCenter: parent.verticalCenter; height: root.height; screen: root.screen; textBudget: root.mediaTextBudget } }
+    Component { id: _cLauncher;   LauncherWidget   { anchors.verticalCenter: parent.verticalCenter; height: root.height } }
     Component { id: _cClock;       Clock            { anchors.verticalCenter: parent.verticalCenter; screen: root.screen } }
 
     readonly property var _widgetComponents: ({
         workspaces: _cWorkspaces, shellUpdate: _cShellUpdate, tray: _cTray, updates: _cUpdates,
         network: _cNetwork, volume: _cVolume, brightness: _cBrightness, battery: _cBattery,
-        media: _cMedia, clock: _cClock
+        media: _cMedia, launcher: _cLauncher, clock: _cClock
     })
 
     function _widgetEnabled(key: string): bool {

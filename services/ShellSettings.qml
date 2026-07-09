@@ -94,10 +94,10 @@ Singleton {
     property string barDisabledMonitors: ""        // comma-joined connector names whose bar is hidden
     property string overlayMonitor:      ""        // "" = follow focus; else a monitor connector name for notifs/OSD
 
-    readonly property var _allBarWidgetKeys: ["workspaces", "shellUpdate", "tray", "updates", "network", "volume", "brightness", "battery", "media", "clock"]
+    readonly property var _allBarWidgetKeys: ["workspaces", "shellUpdate", "tray", "updates", "network", "volume", "brightness", "battery", "media", "launcher", "clock"]
 
     property string barWidgetOrderLeft:  "workspaces"
-    property string barWidgetOrderRight: "shellUpdate,tray,updates,network,volume,brightness,battery,media,clock"
+    property string barWidgetOrderRight: "launcher,shellUpdate,tray,updates,network,volume,brightness,battery,media,clock"
 
     // Self-healing, mutually exclusive: unknown/duplicate tokens dropped; any
     // canonical key missing from BOTH lists (corrupted data, or a key added
@@ -185,6 +185,7 @@ Singleton {
         brightness:  { glyph: "󰃟", label: "Brightness",      group: "levels", setting: "barShowBrightness" },
         battery:     { glyph: "󰂄", label: "Battery",         group: "levels", setting: "barShowBattery" },
         media:       { glyph: "󰝚", label: "Media",           group: "media",  setting: "barShowMedia" },
+        launcher:    { glyph: "󰀻", label: "App launcher",    group: "shell",  setting: "" },
         clock:       { glyph: "󰅐", label: "Clock",           group: "clock",  setting: "barShowClock" }
     })
 

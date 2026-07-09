@@ -24,13 +24,10 @@ Pill {
         onTapped: root.activated()
     }
 
-    Process {
-        id: _launchProc
-        command: ["wofi", "--show", "drun"]
-    }
+    Process { id: _launchProc }
 
     onActivated: {
         if (SystemTools.hasWofi && !_launchProc.running)
-            _launchProc.exec()
+            _launchProc.exec(["wofi", "--show", "drun"])
     }
 }

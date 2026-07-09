@@ -11,12 +11,10 @@ PanelWindow {
     screen: Quickshell.screens[0]
     WlrLayershell.layer: WlrLayer.Bottom
     color: "transparent"
-    width: 380
-    height: 400
+    anchors.top: true
+    anchors.left: true
     anchors.right: true
     anchors.bottom: true
-    anchors.rightMargin: 40
-    anchors.bottomMargin: 60
 
     readonly property var _blades: [
         { color: "#d8008e", name: "Rose" },
@@ -93,9 +91,10 @@ PanelWindow {
     // ---- main content ----
     Item {
         id: _content
-        anchors.centerIn: parent
-        width: _diamondSize + _ringRadius * 2
-        height: width
+        x: parent.width - 380 - 40
+        y: parent.height - 400 - 60
+        width: 380
+        height: 400
 
         readonly property color currentColor: selectedIndex >= 0
             ? _blades[selectedIndex].color

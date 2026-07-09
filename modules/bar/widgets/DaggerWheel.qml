@@ -158,7 +158,7 @@ Item {
     // ============================================================
     component CycleArrow: Item {
         id: arr
-        property bool isLeft: false
+        property bool left: false
         property color arrowColor: "#f2f4f8"
         signal clicked
 
@@ -179,7 +179,7 @@ Item {
                 ctx.lineWidth = 2
                 ctx.lineCap = "round"
                 ctx.beginPath()
-                if (arr.isLeft) {
+                if (arr.left) {
                     ctx.moveTo(width * 0.7, height * 0.2)
                     ctx.lineTo(width * 0.3, height * 0.5)
                     ctx.lineTo(width * 0.7, height * 0.8)
@@ -213,7 +213,7 @@ Item {
             id: _leftArr
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
-            isLeft: true
+            left: true
             onClicked: root._cycle(-1)
         }
 
@@ -279,7 +279,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: _nameLabel.right
             anchors.leftMargin: 2
-            isLeft: false
+            left: false
             onClicked: root._cycle(1)
         }
     }

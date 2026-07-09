@@ -24,8 +24,8 @@ Singleton {
 
     readonly property color background: _n ? (_pal.background ?? MatugenTheme.background) : MatugenTheme.background
     readonly property color surface:    _n ? (_pal.surface ?? MatugenTheme.surface)       : MatugenTheme.surface
-    readonly property color text:       _w ? "#1a1b1e" : (_n ? "#f2f4f8" : MatugenTheme.text)
-    readonly property color subtext:    _w ? "#6c6f78" : (_n ? (_pal.subtext ?? MatugenTheme.subtext) : MatugenTheme.subtext)
+    readonly property color text:       _w ? "#2c2e33" : (_n ? "#f2f4f8" : MatugenTheme.text)
+    readonly property color subtext:    _w ? "#5a5d66" : (_n ? (_pal.subtext ?? MatugenTheme.subtext) : MatugenTheme.subtext)
     readonly property color accent:     _n ? (ShellSettings.neutralAccentAuto ? MatugenTheme.accent : ShellSettings.neutralAccent) : MatugenTheme.accent
     readonly property color error:      _n ? "#f7768e" : MatugenTheme.error
     readonly property color warning:    _n ? "#e0af68" : MatugenTheme.warning

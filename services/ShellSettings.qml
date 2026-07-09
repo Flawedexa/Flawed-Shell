@@ -39,8 +39,6 @@ Singleton {
     property bool   barShowBrightness:   true
     property bool   barShowMedia:        true
 
-    property bool   barShowDaggerWheel:   true
-
     property bool   osdEnabled:     true
     property int    osdTimeout:     2000
     property string osdKindFilter:  "both"   // "both" | "volume" | "brightness"
@@ -186,7 +184,6 @@ Singleton {
         brightness:  { glyph: "󰃟", label: "Brightness",      group: "levels", setting: "barShowBrightness" },
         battery:     { glyph: "󰂄", label: "Battery",         group: "levels", setting: "barShowBattery" },
         media:       { glyph: "󰝚", label: "Media",           group: "media",  setting: "barShowMedia" },
-        daggerWheel: { glyph: "🗡", label: "Dagger Wheel",    group: "media",  setting: "barShowDaggerWheel" },
         clock:       { glyph: "󰅐", label: "Clock",           group: "clock",  setting: "barShowClock" }
     })
 
@@ -245,7 +242,6 @@ Singleton {
         { k: "barShowVolume",       t: "bool" },
         { k: "barShowBrightness",   t: "bool" },
         { k: "barShowMedia",        t: "bool" },
-        { k: "barShowDaggerWheel",  t: "bool" },
         { k: "osdEnabled",          t: "bool" },
         { k: "osdTimeout",          t: "int",  min: 500,  max: 10000 },
         { k: "osdKindFilter",       t: "enum", vals: ["both", "volume", "brightness"] },

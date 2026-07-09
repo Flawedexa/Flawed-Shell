@@ -158,4 +158,3 @@ ShellRoot {
 
     // Desktop dagger weather widget
     DaggerWeather {}
-}

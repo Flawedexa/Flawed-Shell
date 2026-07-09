@@ -10,6 +10,7 @@ import "modules/menu"
 import "modules/calendar"
 import "modules/traymenu"
 import "modules/quickactions"
+import "modules/daggerweather"
 import "services"
 import "config"
 
@@ -154,4 +155,6 @@ ShellRoot {
         wantOpen: QuickActionsState.open
         surface: Component { QuickActionsPopup { targetScreen: QuickActionsState.triggerScreen ?? root.activeOverlayScreen } }
     }
-}
+
+    // Desktop dagger weather widget
+    DaggerWeather {}

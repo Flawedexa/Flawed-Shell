@@ -13,12 +13,10 @@ PanelWindow {
     color: "transparent"
     width: 380
     height: 400
-    anchors {
-        right: true
-        bottom: true
-        rightMargin: 40
-        bottomMargin: 60
-    }
+    anchors.right: true
+    anchors.bottom: true
+    anchors.rightMargin: 40
+    anchors.bottomMargin: 60
 
     readonly property var _blades: [
         { color: "#d8008e", name: "Rose" },
@@ -116,15 +114,21 @@ PanelWindow {
 
         // Diamond quadrants (Canvas)
         Canvas {
+            id: _diamond
             anchors.centerIn: parent
             width: _diamondSize
             height: _diamondSize
             antialiasing: true
 
-            readonly property color topColor: Theme.mix(_content.currentColor, "#ffffff", 0.5)
-            readonly property color rightColor: _content.currentColor
-            readonly property color bottomColor: Theme.mix(_content.currentColor, "#000000", 0.4)
-            readonly property color leftColor: Theme.mix(_content.currentColor, "#ffffff", 0.2)
+            property color topColor: Theme.mix(_content.currentColor, "#ffffff", 0.5)
+            property color rightColor: _content.currentColor
+            property color bottomColor: Theme.mix(_content.currentColor, "#000000", 0.4)
+            property color leftColor: Theme.mix(_content.currentColor, "#ffffff", 0.2)
+
+            onTopColorChanged: requestPaint()
+            onRightColorChanged: requestPaint()
+            onBottomColorChanged: requestPaint()
+            onLeftColorChanged: requestPaint()
 
             onPaint: {
                 const ctx = getContext("2d")
@@ -138,55 +142,44 @@ PanelWindow {
                 ctx.translate(cx, cy)
                 ctx.rotate(45 * Math.PI / 180)
 
-                // Four quadrants
-                // Top (fire)
                 ctx.beginPath()
                 ctx.moveTo(0, 0)
                 ctx.lineTo(r, -r)
                 ctx.lineTo(-r, -r)
                 ctx.closePath()
-                ctx.fillStyle = topColor
+                ctx.fillStyle = _diamond.topColor
                 ctx.fill()
 
-                // Right (air)
                 ctx.beginPath()
                 ctx.moveTo(0, 0)
                 ctx.lineTo(r, -r)
                 ctx.lineTo(r, r)
                 ctx.closePath()
-                ctx.fillStyle = rightColor
+                ctx.fillStyle = _diamond.rightColor
                 ctx.fill()
 
-                // Bottom (water)
                 ctx.beginPath()
                 ctx.moveTo(0, 0)
                 ctx.lineTo(r, r)
                 ctx.lineTo(-r, r)
                 ctx.closePath()
-                ctx.fillStyle = bottomColor
+                ctx.fillStyle = _diamond.bottomColor
                 ctx.fill()
 
-                // Left (earth)
                 ctx.beginPath()
                 ctx.moveTo(0, 0)
                 ctx.lineTo(-r, r)
                 ctx.lineTo(-r, -r)
                 ctx.closePath()
-                ctx.fillStyle = leftColor
+                ctx.fillStyle = _diamond.leftColor
                 ctx.fill()
 
-                // Outline
                 ctx.strokeStyle = Theme.withAlpha("#ffffff", 0.2)
                 ctx.lineWidth = 1.5
                 ctx.strokeRect(-r, -r, s, s)
 
                 ctx.restore()
             }
-
-            Behavior on topColor    { ColorAnimation { duration: 300 } }
-            Behavior on rightColor  { ColorAnimation { duration: 300 } }
-            Behavior on bottomColor { ColorAnimation { duration: 300 } }
-            Behavior on leftColor   { ColorAnimation { duration: 300 } }
         }
 
         // Inner diamond border

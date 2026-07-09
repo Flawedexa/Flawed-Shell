@@ -46,7 +46,7 @@ Item {
         id: _row
         anchors.verticalCenter: parent.verticalCenter
         // tracks the Spacing setting (one notch tighter: icons read as a cluster)
-        spacing: Math.max(5, ShellSettings.barSpacing - 4)
+        spacing: Math.max(8, ShellSettings.barSpacing - 2)
 
         Repeater {
             id: _items

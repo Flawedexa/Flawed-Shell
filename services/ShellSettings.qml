@@ -89,6 +89,7 @@ Singleton {
     property real   barShadowStrength:   1.0      // scales the floating shadow's depth, 0.3-2.0
     property string barPosition:         "top"     // "top" | "bottom"
     property real   barOpacity:          0.82
+    property real   menuOpacity:         0.92
     property bool   barCustomColor:      false    // use wallpaper accent instead of background
     property string barDisabledMonitors: ""        // comma-joined connector names whose bar is hidden
     property string overlayMonitor:      ""        // "" = follow focus; else a monitor connector name for notifs/OSD
@@ -222,7 +223,7 @@ Singleton {
         { k: "neutralTheme",        t: "bool" },
         { k: "neutralAccentAuto",   t: "bool" },
         { k: "neutralAccent",       t: "re",   re: /^#[0-9a-fA-F]{6}$/ },
-        { k: "baseTone",            t: "enum", vals: ["charcoal", "black"] },
+        { k: "baseTone",            t: "enum", vals: ["charcoal", "black", "auto"] },
         { k: "networkTrafficStats", t: "bool" },
         { k: "networkSpeedInline",  t: "bool" },
         { k: "netVpnShowLink",      t: "bool" },
@@ -289,6 +290,7 @@ Singleton {
         { k: "barShadowStrength",   t: "real", min: 0.3,  max: 2.0 },
         { k: "barPosition",         t: "enum", vals: ["top", "bottom"] },
         { k: "barOpacity",          t: "real", min: 0.4,  max: 1.0 },
+        { k: "menuOpacity",         t: "real", min: 0.4,  max: 1.0 },
         { k: "barCustomColor",      t: "bool" },
         { k: "barDisabledMonitors", t: "re",   re: /^[A-Za-z0-9._,-]*$/ },
         { k: "overlayMonitor",      t: "re",   re: /^[A-Za-z0-9._-]*$/ },

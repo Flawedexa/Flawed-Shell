@@ -467,7 +467,8 @@ PageShell {
                             currentValue: ShellSettings.baseTone
                             model: [
                                 { value: "charcoal", label: "Charcoal", color: "#17191d" },
-                                { value: "black",    label: "Black",    color: "#030303" }
+                                { value: "black",    label: "Black",    color: "#030303" },
+                                { value: "auto",     label: "Auto",     color: MatugenTheme.background }
                             ]
                             onChosen: (v) => ShellSettings.baseTone = v
                         }
@@ -483,6 +484,17 @@ PageShell {
                             : "#000000"
                         checked: ShellSettings.barCustomColor
                         onToggled: ShellSettings.barCustomColor = !ShellSettings.barCustomColor
+                    }
+                }
+
+                SectionLabel { label: "MENU COLOUR" }
+                SettingsCard {
+                    SliderRow {
+                        glyph: "󰗌"; label: "Opacity"
+                        value: ShellSettings.menuOpacity
+                        min: 0.4; max: 1.0; step: 0.02
+                        displayValue: Math.round(ShellSettings.menuOpacity * 100) + "%"
+                        onChanged: (v) => ShellSettings.menuOpacity = v
                     }
                 }
 

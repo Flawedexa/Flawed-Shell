@@ -14,14 +14,15 @@ Singleton {
     // as graphite rather than dead grey, without tipping into a visible tint.
     readonly property var _tones: ({
         charcoal: { background: "#090a0c", surface: "#17191d", subtext: "#a0a3aa" },
-        black:    { background: "#030303", surface: "#101114", subtext: "#9699a0" }
+        black:    { background: "#030303", surface: "#101114", subtext: "#9699a0" },
+        auto:     { background: null,      surface: null,      subtext: null      }
     })
     readonly property var _pal: _tones[ShellSettings.baseTone] ?? _tones.charcoal
 
-    readonly property color background: _n ? _pal.background : MatugenTheme.background
-    readonly property color surface:    _n ? _pal.surface   : MatugenTheme.surface
+    readonly property color background: _n ? (_pal.background ?? MatugenTheme.background) : MatugenTheme.background
+    readonly property color surface:    _n ? (_pal.surface ?? MatugenTheme.surface)       : MatugenTheme.surface
     readonly property color text:       _n ? "#f2f4f8" : MatugenTheme.text
-    readonly property color subtext:    _n ? _pal.subtext   : MatugenTheme.subtext
+    readonly property color subtext:    _n ? (_pal.subtext ?? MatugenTheme.subtext)       : MatugenTheme.subtext
     readonly property color accent:     _n ? (ShellSettings.neutralAccentAuto ? MatugenTheme.accent : ShellSettings.neutralAccent) : MatugenTheme.accent
     readonly property color error:      _n ? "#f7768e" : MatugenTheme.error
     readonly property color warning:    _n ? "#e0af68" : MatugenTheme.warning
@@ -35,7 +36,7 @@ Singleton {
     readonly property color panel: ShellSettings.barCustomColor
         ? withAlpha(mix(background, accent, 0.25), ShellSettings.barOpacity)
         : withAlpha("#000000", ShellSettings.barOpacity)
-    readonly property color popup: background
+    readonly property color popup: withAlpha(background, ShellSettings.menuOpacity)
 
     // Tonal elevation: in dark mode depth reads from lighter-on-darker, so menu
     // surfaces step UP from the base (~6/8% toward text) instead of blending into

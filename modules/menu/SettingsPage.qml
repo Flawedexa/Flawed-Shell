@@ -468,7 +468,8 @@ PageShell {
                             model: [
                                 { value: "charcoal", label: "Charcoal", color: "#17191d" },
                                 { value: "black",    label: "Black",    color: "#030303" },
-                                { value: "auto",     label: "Auto",     color: MatugenTheme.background }
+                                { value: "auto",     label: "Auto",     color: MatugenTheme.background },
+                                { value: "white",    label: "White",    color: "#f2f3f5" }
                             ]
                             onChosen: (v) => ShellSettings.baseTone = v
                         }

@@ -223,7 +223,7 @@ Singleton {
         { k: "neutralTheme",        t: "bool" },
         { k: "neutralAccentAuto",   t: "bool" },
         { k: "neutralAccent",       t: "re",   re: /^#[0-9a-fA-F]{6}$/ },
-        { k: "baseTone",            t: "enum", vals: ["charcoal", "black", "auto"] },
+        { k: "baseTone",            t: "enum", vals: ["charcoal", "black", "auto", "white"] },
         { k: "networkTrafficStats", t: "bool" },
         { k: "networkSpeedInline",  t: "bool" },
         { k: "netVpnShowLink",      t: "bool" },

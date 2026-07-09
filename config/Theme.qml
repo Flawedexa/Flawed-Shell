@@ -15,14 +15,17 @@ Singleton {
     readonly property var _tones: ({
         charcoal: { background: "#090a0c", surface: "#17191d", subtext: "#a0a3aa" },
         black:    { background: "#030303", surface: "#101114", subtext: "#9699a0" },
-        auto:     { background: null,      surface: null,      subtext: null      }
+        auto:     { background: null,      surface: null,      subtext: null      },
+        white:    { background: "#f2f3f5", surface: "#ffffff", subtext: "#6c6f78" }
     })
     readonly property var _pal: _tones[ShellSettings.baseTone] ?? _tones.charcoal
 
+    readonly property bool _w: ShellSettings.baseTone === "white"
+
     readonly property color background: _n ? (_pal.background ?? MatugenTheme.background) : MatugenTheme.background
     readonly property color surface:    _n ? (_pal.surface ?? MatugenTheme.surface)       : MatugenTheme.surface
-    readonly property color text:       _n ? "#f2f4f8" : MatugenTheme.text
-    readonly property color subtext:    _n ? (_pal.subtext ?? MatugenTheme.subtext)       : MatugenTheme.subtext
+    readonly property color text:       _w ? "#1a1b1e" : (_n ? "#f2f4f8" : MatugenTheme.text)
+    readonly property color subtext:    _w ? "#6c6f78" : (_n ? (_pal.subtext ?? MatugenTheme.subtext) : MatugenTheme.subtext)
     readonly property color accent:     _n ? (ShellSettings.neutralAccentAuto ? MatugenTheme.accent : ShellSettings.neutralAccent) : MatugenTheme.accent
     readonly property color error:      _n ? "#f7768e" : MatugenTheme.error
     readonly property color warning:    _n ? "#e0af68" : MatugenTheme.warning
@@ -35,12 +38,13 @@ Singleton {
 
     readonly property color panel: ShellSettings.barCustomColor
         ? withAlpha(mix(background, accent, 0.25), ShellSettings.barOpacity)
-        : withAlpha("#000000", ShellSettings.barOpacity)
+        : _w ? withAlpha(background, ShellSettings.barOpacity)
+             : withAlpha("#000000", ShellSettings.barOpacity)
 
     // When base tone is "auto" the menu picks up the same accent-tinted background
     // the bar uses with barCustomColor, so the whole shell reads as one surface.
-    readonly property color _menuBg: ShellSettings.baseTone === "auto"
-        ? mix(background, accent, 0.25)
+    readonly property color _menuBg: _w ? background
+        : ShellSettings.baseTone === "auto" ? mix(background, accent, 0.25)
         : background
     readonly property color popup: withAlpha(_menuBg, ShellSettings.menuOpacity)
 

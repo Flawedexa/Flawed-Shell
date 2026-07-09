@@ -14,6 +14,8 @@ Pill {
 
     interactive: toolAvailable
 
+    Process { id: _launchProc }
+
     HoverHandler { cursorShape: Qt.PointingHandCursor; enabled: root.interactive }
 
     pressed: _tap.pressed
@@ -21,13 +23,9 @@ Pill {
         id: _tap
         enabled: root.interactive
         acceptedButtons: Qt.LeftButton
-        onTapped: root.activated()
-    }
-
-    Process { id: _launchProc }
-
-    onActivated: {
-        if (SystemTools.hasWofi && !_launchProc.running)
-            _launchProc.exec(["wofi", "--show", "drun"])
+        onTapped: {
+            if (SystemTools.hasWofi && !_launchProc.running)
+                _launchProc.exec(["wofi", "--show", "drun"])
+        }
     }
 }

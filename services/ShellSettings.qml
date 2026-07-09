@@ -95,7 +95,7 @@ Singleton {
     property string barDisabledMonitors: ""        // comma-joined connector names whose bar is hidden
     property string overlayMonitor:      ""        // "" = follow focus; else a monitor connector name for notifs/OSD
 
-    readonly property var _allBarWidgetKeys: ["workspaces", "shellUpdate", "tray", "updates", "network", "volume", "brightness", "battery", "media", "clock"]
+    readonly property var _allBarWidgetKeys: ["workspaces", "shellUpdate", "tray", "updates", "network", "volume", "brightness", "battery", "media", "daggerWheel", "clock"]
 
     property string barWidgetOrderLeft:  "workspaces"
     property string barWidgetOrderRight: "shellUpdate,tray,updates,network,volume,brightness,battery,media,clock"

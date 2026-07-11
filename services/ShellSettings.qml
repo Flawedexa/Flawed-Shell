@@ -38,6 +38,7 @@ Singleton {
     property bool   barShowVolume:       true
     property bool   barShowBrightness:   true
     property bool   barShowMedia:        true
+    property bool   barShowLauncher:     true
 
     property bool   osdEnabled:     true
     property int    osdTimeout:     2000
@@ -185,7 +186,7 @@ Singleton {
         brightness:  { glyph: "󰃟", label: "Brightness",      group: "levels", setting: "barShowBrightness" },
         battery:     { glyph: "󰂄", label: "Battery",         group: "levels", setting: "barShowBattery" },
         media:       { glyph: "󰝚", label: "Media",           group: "media",  setting: "barShowMedia" },
-        launcher:    { glyph: "󰀻", label: "App launcher",    group: "shell",  setting: "" },
+        launcher:    { glyph: "󰀻", label: "App launcher",    group: "shell",  setting: "barShowLauncher" },
         clock:       { glyph: "󰅐", label: "Clock",           group: "clock",  setting: "barShowClock" }
     })
 
@@ -244,6 +245,7 @@ Singleton {
         { k: "barShowVolume",       t: "bool" },
         { k: "barShowBrightness",   t: "bool" },
         { k: "barShowMedia",        t: "bool" },
+        { k: "barShowLauncher",     t: "bool" },
         { k: "osdEnabled",          t: "bool" },
         { k: "osdTimeout",          t: "int",  min: 500,  max: 10000 },
         { k: "osdKindFilter",       t: "enum", vals: ["both", "volume", "brightness"] },

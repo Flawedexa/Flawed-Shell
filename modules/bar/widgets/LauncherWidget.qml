@@ -11,8 +11,15 @@ Pill {
     accessibleDescription: "Open the application launcher"
 
     readonly property bool toolAvailable: SystemTools.hasWofi
+    readonly property bool show: ShellSettings.barShowLauncher && toolAvailable
+    visible: opacity > 0.01
+    opacity: show ? 1.0 : 0.0
+    scale:   show ? 1.0 : 0.7
+    transformOrigin: Item.Center
+    Behavior on opacity { enabled: !ShellSettings.reduceMotion; NumberAnimation { duration: Motion.normal; easing.type: Easing.OutCubic } }
+    Behavior on scale   { enabled: !ShellSettings.reduceMotion; NumberAnimation { duration: Motion.normal; easing.type: Easing.OutQuart } }
 
-    interactive: toolAvailable
+    interactive: show
 
     Process { id: _launchProc }
 

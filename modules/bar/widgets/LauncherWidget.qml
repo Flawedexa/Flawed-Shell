@@ -32,7 +32,12 @@ Pill {
         enabled: root.interactive
         acceptedButtons: Qt.LeftButton
         onTapped: {
-            if (!SystemTools.hasWofi || _launchProc.running) return
+            if (!SystemTools.hasWofi) return
+            // Toggle: if already running, kill it; otherwise launch
+            if (_launchProc.running) {
+                _launchProc.close()
+                return
+            }
             var sp = _tap.point.scenePosition
             var gap = 4
             function _rc(v) { return Math.round(v * 255) }

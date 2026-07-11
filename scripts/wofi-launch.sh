@@ -10,7 +10,6 @@ SCRW="${15:-1920}"
 XOFF="${16:-0}"
 YOFF="${17:-0}"
 
-# Clamp xoffset so the 320px window stays fully on screen
 MAX_X=$((SCRW - 330))
 [ "$XOFF" -gt "$MAX_X" ] && XOFF=$MAX_X
 [ "$XOFF" -lt 0 ] && XOFF=0
@@ -20,75 +19,39 @@ mkdir -p "$STYLE_DIR"
 
 cat > "$STYLE_DIR/style.css" << CSS
 window {
-    margin: 0;
-    padding: 0;
+    margin: 0; padding: 0;
     background-color: rgba(${BGR},${BGG},${BGB},${BGA});
     border-radius: 14px;
     font-family: "JetBrainsMono Nerd Font", monospace;
     font-size: 13px;
     border: 1px solid rgba(${AGR},${AGG},${AGB},0.20);
 }
-
-#outer-box {
-    margin: 0;
-    padding: 8px;
-    background-color: transparent;
-}
-
+#outer-box { margin: 0; padding: 8px; background-color: transparent; }
 #input {
-    margin: 4px 8px 8px 8px;
-    padding: 8px 12px;
+    margin: 4px 8px 8px 8px; padding: 8px 12px;
     background-color: rgba(${SFR},${SFG},${SFB},${SFA});
     color: rgb(${FGR},${FGG},${FGB});
     border: 1px solid rgba(${AGR},${AGG},${AGB},0.20);
     border-radius: 10px;
     font-family: "JetBrainsMono Nerd Font", monospace;
-    font-size: 13px;
-    min-height: 20px;
+    font-size: 13px; min-height: 20px;
 }
-
-#input:focus {
-    border-color: rgb(${AGR},${AGG},${AGB});
-}
-
-#scroll {
-    margin: 0 4px;
-    padding: 0;
-    background-color: transparent;
-}
-
-#inner-box {
-    margin: 0;
-    padding: 0;
-    background-color: transparent;
-}
-
+#input:focus { border-color: rgb(${AGR},${AGG},${AGB}); }
+#scroll { margin: 0 4px; padding: 0; background-color: transparent; }
+#inner-box { margin: 0; padding: 0; background-color: transparent; }
 #entry {
-    margin: 2px 4px;
-    padding: 6px 10px;
+    margin: 2px 4px; padding: 6px 10px;
     background-color: rgba(${SFR},${SFG},${SFB},0.50);
     color: rgb(${FGR},${FGG},${FGB});
-    border-radius: 10px;
-    border: 1px solid transparent;
+    border-radius: 10px; border: 1px solid transparent;
 }
-
 #entry:selected {
     background-color: rgba(${AGR},${AGG},${AGB},0.14);
     border-color: rgba(${AGR},${AGG},${AGB},0.40);
 }
-
-#text {
-    margin: 0 8px;
-    color: rgb(${FGR},${FGG},${FGB});
-}
-
-#text:selected {
-    color: #ffffff;
-}
-
-#img {
-    margin: 0 4px 0 0;
-}
+#text { margin: 0 8px; color: rgb(${FGR},${FGG},${FGB}); }
+#text:selected { color: #ffffff; }
+#img { margin: 0 4px 0 0; }
 CSS
 
-exec wofi --location=top_left --xoffset="$XOFF" --yoffset="$YOFF" --normal-window
+exec wofi --location=top_left --xoffset="$XOFF" --yoffset="$YOFF"

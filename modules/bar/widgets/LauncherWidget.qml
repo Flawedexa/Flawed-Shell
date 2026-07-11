@@ -31,8 +31,15 @@ Pill {
         enabled: root.interactive
         acceptedButtons: Qt.LeftButton
         onTapped: {
-            if (SystemTools.hasWofi && !_launchProc.running)
-                _launchProc.exec(["wofi"])
+            if (!SystemTools.hasWofi || _launchProc.running) return
+            var p = root.mapToItem(null, 0, 0)
+            var gap = 4
+            _launchProc.exec([
+                "wofi",
+                "--location=top_left",
+                "--xoffset=" + Math.round(p.x),
+                "--yoffset=" + Math.round(p.y + root.height + gap)
+            ])
         }
     }
 }

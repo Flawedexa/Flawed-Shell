@@ -10,6 +10,11 @@ SCRW="${15:-1920}"
 XOFF="${16:-0}"
 YOFF="${17:-0}"
 
+# Clamp xoffset so the 320px window stays fully on screen
+MAX_X=$((SCRW - 330))
+[ "$XOFF" -gt "$MAX_X" ] && XOFF=$MAX_X
+[ "$XOFF" -lt 0 ] && XOFF=0
+
 STYLE_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/wofi"
 mkdir -p "$STYLE_DIR"
 
@@ -86,16 +91,4 @@ window {
 }
 CSS
 
-# Position the menu below the click: left side uses top_left aligned to click,
-# right side uses top_right so the right edge aligns with the click instead
-# of overflowing past the screen edge.
-MID=$((SCRW / 2))
-if [ "$XOFF" -gt "$MID" ]; then
-    FROM_RIGHT=$((SCRW - XOFF))
-    exec wofi --location=top_right --xoffset="$FROM_RIGHT" --yoffset="$YOFF"
-else
-    MAX_X=$((SCRW - 330))
-    [ "$XOFF" -gt "$MAX_X" ] && XOFF=$MAX_X
-    [ "$XOFF" -lt 0 ] && XOFF=0
-    exec wofi --location=top_left --xoffset="$XOFF" --yoffset="$YOFF"
-fi
+exec wofi --location=top_left --xoffset="$XOFF" --yoffset="$YOFF" --normal-window

@@ -1,13 +1,23 @@
 #!/usr/bin/env bash
-# Usage: wofi-launch.sh <bg_hex> <fg_hex> <accent_hex> <surface_hex> <xoffset> <yoffset>
+# Usage: wofi-launch.sh <bg_r> <bg_g> <bg_b> <bg_a> <fg_r> <fg_g> <fg_b> <accent_r> <accent_g> <accent_b> <surface_r> <surface_g> <surface_b> <surface_a> <screen_w> <xoff> <yoff>
 set -euo pipefail
 
-BG="${1:-#090a0c}"
-FG="${2:-#f2f4f8}"
-ACCENT="${3:-#bb9af7}"
-SURFACE="${4:-#17191d}"
-XOFF="${5:-0}"
-YOFF="${6:-0}"
+BGR="${1:-9}"   BGG="${2:-10}"  BGB="${3:-12}"  BGA="${4:-0.82}"
+FGR="${5:-242}" FGG="${6:-244}" FGB="${7:-248}"
+AGR="${8:-187}" AGG="${9:-154}" AGB="${10:-247}"
+SFR="${11:-23}" SFG="${12:-25}" SFB="${13:-29}" SFA="${14:-0.82}"
+SCRW="${15:-1920}"
+XOFF="${16:-0}"
+YOFF="${17:-0}"
+
+# Clamp xoffset so the 320px window doesn't overflow the right edge
+MAX_XOFF=$((SCRW - 330))
+if [ "$XOFF" -gt "$MAX_XOFF" ]; then
+    XOFF=$MAX_XOFF
+fi
+if [ "$XOFF" -lt 0 ]; then
+    XOFF=0
+fi
 
 STYLE_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/wofi"
 mkdir -p "$STYLE_DIR"
@@ -16,11 +26,11 @@ cat > "$STYLE_DIR/style.css" << CSS
 window {
     margin: 0;
     padding: 0;
-    background-color: ${BG}cc;
+    background-color: rgba(${BGR},${BGG},${BGB},${BGA});
     border-radius: 14px;
     font-family: "JetBrainsMono Nerd Font", monospace;
     font-size: 13px;
-    border: 1px solid ${ACCENT}33;
+    border: 1px solid rgba(${AGR},${AGG},${AGB},0.20);
 }
 
 #outer-box {
@@ -32,9 +42,9 @@ window {
 #input {
     margin: 4px 8px 8px 8px;
     padding: 8px 12px;
-    background-color: ${SURFACE}cc;
-    color: ${FG};
-    border: 1px solid ${ACCENT}33;
+    background-color: rgba(${SFR},${SFG},${SFB},${SFA});
+    color: rgb(${FGR},${FGG},${FGB});
+    border: 1px solid rgba(${AGR},${AGG},${AGB},0.20);
     border-radius: 10px;
     font-family: "JetBrainsMono Nerd Font", monospace;
     font-size: 13px;
@@ -42,7 +52,7 @@ window {
 }
 
 #input:focus {
-    border-color: ${ACCENT};
+    border-color: rgb(${AGR},${AGG},${AGB});
 }
 
 #scroll {
@@ -60,25 +70,20 @@ window {
 #entry {
     margin: 2px 4px;
     padding: 6px 10px;
-    background-color: ${SURFACE}80;
-    color: ${FG};
+    background-color: rgba(${SFR},${SFG},${SFB},0.50);
+    color: rgb(${FGR},${FGG},${FGB});
     border-radius: 10px;
     border: 1px solid transparent;
 }
 
 #entry:selected {
-    background-color: ${ACCENT}22;
-    border-color: ${ACCENT}66;
-}
-
-#entry:focus {
-    background-color: ${ACCENT}18;
-    border-color: ${ACCENT}44;
+    background-color: rgba(${AGR},${AGG},${AGB},0.14);
+    border-color: rgba(${AGR},${AGG},${AGB},0.40);
 }
 
 #text {
     margin: 0 8px;
-    color: ${FG};
+    color: rgb(${FGR},${FGG},${FGB});
 }
 
 #text:selected {

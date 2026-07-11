@@ -35,13 +35,14 @@ Pill {
             if (!SystemTools.hasWofi || _launchProc.running) return
             var sp = _tap.point.scenePosition
             var gap = 4
-            function _hex(v) { return ("#" + ("0" + Math.round(v.r * 255).toString(16)).slice(-2) + ("0" + Math.round(v.g * 255).toString(16)).slice(-2) + ("0" + Math.round(v.b * 255).toString(16)).slice(-2)).toUpperCase() }
+            function _rc(v) { return Math.round(v * 255) }
             _launchProc.exec([
                 Quickshell.shellDir + "/scripts/wofi-launch.sh",
-                _hex(Theme.background),
-                _hex(Theme.text),
-                _hex(Theme.accent),
-                _hex(Theme.surface),
+                String(_rc(Theme.panel.r)), String(_rc(Theme.panel.g)), String(_rc(Theme.panel.b)), String(Theme.panel.a),
+                String(_rc(Theme.text.r)), String(_rc(Theme.text.g)), String(_rc(Theme.text.b)),
+                String(_rc(Theme.accent.r)), String(_rc(Theme.accent.g)), String(_rc(Theme.accent.b)),
+                String(_rc(Theme.panel.r)), String(_rc(Theme.panel.g)), String(_rc(Theme.panel.b)), String(Theme.panel.a),
+                String(Screen.width),
                 String(Math.round(sp.x)),
                 String(Math.round(sp.y + gap))
             ])

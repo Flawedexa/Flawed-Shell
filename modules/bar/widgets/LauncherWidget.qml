@@ -25,7 +25,7 @@ Pill {
         acceptedButtons: Qt.LeftButton
         onTapped: {
             if (SystemTools.hasWofi && !_launchProc.running)
-                _launchProc.exec(["wofi", "--show", "drun"])
+                _launchProc.exec(["wofi"])
         }
     }
 }

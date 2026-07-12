@@ -7,7 +7,7 @@ import "../services"
 Singleton {
     id: root
 
-    property string font: ShellSettings.fontFamily + ", monospace"
+    property string font: ShellSettings.fontFamily
 
     readonly property int fontSize: Math.round(ShellSettings.fontSize * ShellSettings.uiScale)
     readonly property int hPad: 14

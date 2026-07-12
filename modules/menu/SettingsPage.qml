@@ -463,13 +463,11 @@ PageShell {
                             glyph: "◐"; label: "Base tone"
                             currentValue: ShellSettings.baseTone
                             model: [
-                                { value: "charcoal", label: "Charcoal", color: "#17191d" },
                                 { value: "black",    label: "Black",    color: "#030303" },
                                 { value: "auto",     label: "Auto",     color: MatugenTheme.background },
                                 { value: "white",    label: "White",    color: "#f2f3f5" },
                                 { value: "custom",   label: "Custom"   }
                             ]
-                            // swatch previews the picked hue at a legible tone — the applied base itself is too dark to tell apart
                             liveSwatches: ({ custom: _baseHueRow.previewTone })
                             onChosen: (v) => ShellSettings.baseTone = v
                         }
@@ -558,12 +556,10 @@ PageShell {
                 SectionLabel { label: "BAR COLOUR" }
                 SettingsCard {
                     ToggleRow {
-                        glyph: "󰚥"; label: "Tinted bar"
-                        description: ShellSettings.barCustomColor
-                            ? ("#" + root._hex2(MatugenTheme.accent.r) + root._hex2(MatugenTheme.accent.g) + root._hex2(MatugenTheme.accent.b)).toUpperCase()
-                            : "#000000"
-                        checked: ShellSettings.barCustomColor
-                        onToggled: ShellSettings.barCustomColor = !ShellSettings.barCustomColor
+                        glyph: "󰗌"; label: "Match menu"
+                        description: "Use menu colour and opacity for bar background"
+                        checked: ShellSettings.barMatchMenuOpacity
+                        onToggled: ShellSettings.barMatchMenuOpacity = !ShellSettings.barMatchMenuOpacity
                     }
                 }
 
@@ -578,7 +574,19 @@ PageShell {
                     }
                 }
 
-                // neutral off: shell themes from matugen; show the live palette as proof (bundled fallback tones if matugen's absent, called out as such)
+                WallpaperSection {}
+
+                SettingsCard {
+                    visible: SystemTools.ready && SystemTools.hasMatugen
+                    ToggleRow {
+                        glyph: "󰔎"; label: "Generate theme"
+                        description: "Regenerate Material colours from new wallpapers (shell restarts)"
+                        checked: ShellSettings.matugenAuto
+                        onToggled: ShellSettings.matugenAuto = !ShellSettings.matugenAuto
+                    }
+                }
+
+                // neutral off: shell themes from matugen; show the live palette as proof (bundled fallback tones if matugen's absent, called out as not)
                 CollapsibleSection {
                     expanded: _secTheme._showMatuContent
 
@@ -793,6 +801,22 @@ PageShell {
                         min: 0.4; max: 1.0; step: 0.02
                         displayValue: Math.round(ShellSettings.barOpacity * 100) + "%"
                         onChanged: (v) => ShellSettings.barOpacity = v
+                    }
+                    ToggleRow {
+                        glyph: "󰖌"; label: "Blur behind"
+                        description: "Makes bar more transparent — compositor blur shows through if enabled"
+                        checked: ShellSettings.panelBlur
+                        onToggled: ShellSettings.panelBlur = !ShellSettings.panelBlur
+                    }
+                    CollapsibleSection {
+                        expanded: ShellSettings.panelBlur
+                        SliderRow {
+                            glyph: "󰖌"; label: "Blur strength"
+                            value: ShellSettings.panelBlurStrength
+                            min: 0.1; max: 1.0; step: 0.05
+                            displayValue: Math.round(ShellSettings.panelBlurStrength * 100) + "%"
+                            onChanged: (v) => ShellSettings.panelBlurStrength = v
+                        }
                     }
                 }
 
@@ -1480,13 +1504,46 @@ PageShell {
                         glyph: "󰍉"; label: "UI scale"
                         currentValue: ShellSettings.uiScale
                         model: [
-                            { value: 0.8,  label: "80%"  },
-                            { value: 0.9,  label: "90%"  },
-                            { value: 1.0,  label: "100%" },
-                            { value: 1.1,  label: "110%" },
-                            { value: 1.15, label: "115%" }
+                            { value: 0.8,  label: "80%"   },
+                            { value: 0.85, label: "85%"   },
+                            { value: 0.9,  label: "90%"   },
+                            { value: 0.95, label: "95%"   },
+                            { value: 1.0,  label: "100%"  },
+                            { value: 1.05, label: "105%"  },
+                            { value: 1.1,  label: "110%"  },
+                            { value: 1.15, label: "115%"  },
+                            { value: 1.2,  label: "120%"  },
+                            { value: 1.25, label: "125%"  }
                         ]
                         onChosen: (v) => ShellSettings.uiScale = v
+                    }
+                    ChoiceChipRow {
+                        glyph: "󰑐"; label: "Font size"
+                        currentValue: ShellSettings.fontSize
+                        model: [
+                            { value: 9,  label: "9"  },
+                            { value: 10, label: "10" },
+                            { value: 11, label: "11" },
+                            { value: 12, label: "12" },
+                            { value: 13, label: "13" },
+                            { value: 14, label: "14" },
+                            { value: 15, label: "15" },
+                            { value: 16, label: "16" }
+                        ]
+                        onChosen: (v) => ShellSettings.fontSize = v
+                    }
+                    SelectRow {
+                        glyph: "󰑐"; label: "Font family"
+                        currentValue: ShellSettings.fontFamily
+                        model: [
+                            { value: "DejaVu Sans Mono",        label: "DejaVu Sans Mono" },
+                            { value: "JetBrainsMono Nerd Font", label: "JetBrains Mono" },
+                            { value: "Liberation Mono",         label: "Liberation Mono" },
+                            { value: "Noto Sans Mono",          label: "Noto Sans Mono" },
+                            { value: "Adwaita Mono",            label: "Adwaita Mono" },
+                            { value: "monospace",               label: "monospace" }
+                        ]
+                        onChosen: (v) => ShellSettings.fontFamily = v
                     }
                 }
 

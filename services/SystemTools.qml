@@ -33,13 +33,17 @@ Singleton {
     readonly property bool hasPowerProfilesCtl: _tools.powerprofilesctl ?? false
     readonly property bool hasMatugen:       _tools.matugen ?? false
     readonly property bool hasWofi:          _tools.wofi ?? false
+    readonly property bool hasSwww:          _tools.swww ?? false
+    readonly property bool hasAwww:          _tools.awww ?? false
+    readonly property bool hasHyprpaper:     _tools.hyprpaper ?? false
+    readonly property bool hasSwaybg:        _tools.swaybg ?? false
 
     function refresh(): void {
         if (_checkProc.running) return
         ready = false
         _checkProc.exec(["bash", "-c",
             "for t in brightnessctl inotifywait nmcli cava hyprsunset hyprlock systemctl hyprctl pgrep pkill notify-send " +
-            "busctl checkupdates paru yay timeout apt dnf zypper xbps-install powerprofilesctl matugen wofi; do " +
+            "busctl checkupdates paru yay timeout apt dnf zypper xbps-install powerprofilesctl matugen wofi swww awww hyprpaper swaybg; do " +
             "  command -v \"$t\" >/dev/null 2>&1 && echo \"$t\"; " +
             "done"])
     }

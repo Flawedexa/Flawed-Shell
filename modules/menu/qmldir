@@ -29,4 +29,5 @@ WifiList        1.0 WifiList.qml
 BluetoothList   1.0 BluetoothList.qml
 DraggableWidgetList 1.0 DraggableWidgetList.qml
 SliderTrack     1.0 SliderTrack.qml
+WallpaperSection 1.0 WallpaperSection.qml
 PageShell       1.0 PageShell.qml

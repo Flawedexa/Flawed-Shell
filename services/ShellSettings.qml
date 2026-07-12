@@ -21,6 +21,9 @@ Singleton {
     property string matugenAccentRole:   "primary"   // which material role drives the accent in wallpaper mode
     property string baseTone:            "charcoal"
     property string customBase:          "#0a0b10"
+    property bool   matugenAuto:         false
+    property string wallpaperDir:        "~/Pictures/Wallpapers"
+    property string wallpaperCurrent:    ""
     property bool   networkTrafficStats: false
     property bool   networkSpeedInline:  false   // pin the live up/down speed next to the icon, not just on hover
     property bool   netVpnShowLink:      false   // show "VPN / wifi|eth" so the underlying link stays visible
@@ -53,6 +56,8 @@ Singleton {
     property bool   osdMatchBar:      true   // floating OSD pill adopts the bar's height + corner radius
     property bool   reduceMotion:        false
     property real   uiScale:             1.0     // shell font scale, 0.8–1.15
+    property int    fontSize:            12
+    property string fontFamily:          "JetBrainsMono Nerd Font"
 
     property bool   notifPopupEnabled:   true
     property bool   notifFullscreenSilence: false  // archive popups while a window is fullscreen
@@ -92,8 +97,11 @@ Singleton {
     property real   barShadowStrength:   1.0      // scales the floating shadow's depth, 0.3-2.0
     property string barPosition:         "top"     // "top" | "bottom"
     property real   barOpacity:          0.82
+    property bool   panelBlur:           false
+    property real   panelBlurStrength:   0.6
     property real   menuOpacity:         0.92
     property bool   barCustomColor:      false    // use wallpaper accent instead of background
+    property bool   barMatchMenuOpacity: false    // bar uses menuOpacity instead of barOpacity
     property string barDisabledMonitors: ""        // comma-joined connector names whose bar is hidden
     property string overlayMonitor:      ""        // "" = follow focus; else a monitor connector name for notifs/OSD
 
@@ -219,8 +227,11 @@ Singleton {
         { k: "neutralAccentAuto",   t: "bool" },
         { k: "neutralAccent",       t: "re",   re: /^#[0-9a-fA-F]{6}$/ },
         { k: "matugenAccentRole",   t: "enum", vals: ["primary", "secondary", "tertiary"] },
-        { k: "baseTone",            t: "enum", vals: ["charcoal", "black", "auto", "white", "custom"] },
+        { k: "baseTone",            t: "enum", vals: ["black", "auto", "white", "custom"] },
         { k: "customBase",          t: "re",   re: /^#[0-9a-fA-F]{6}$/ },
+        { k: "matugenAuto",         t: "bool" },
+        { k: "wallpaperDir",        t: "str" },
+        { k: "wallpaperCurrent",    t: "str" },
         { k: "networkTrafficStats", t: "bool" },
         { k: "networkSpeedInline",  t: "bool" },
         { k: "netVpnShowLink",      t: "bool" },
@@ -251,7 +262,9 @@ Singleton {
         { k: "osdBarIntegrated",    t: "bool" },
         { k: "osdMatchBar",         t: "bool" },
         { k: "reduceMotion",        t: "bool" },
-        { k: "uiScale",             t: "real", min: 0.8, max: 1.15 },
+        { k: "uiScale",             t: "real", min: 0.8, max: 1.25 },
+        { k: "fontSize",            t: "int",  min: 9,  max: 16 },
+        { k: "fontFamily",          t: "str" },
         { k: "notifPopupEnabled",   t: "bool" },
         { k: "notifFullscreenSilence", t: "bool" },
         { k: "notifPosition",       t: "enum", vals: ["top-right", "top-left", "top-center"] },
@@ -288,8 +301,11 @@ Singleton {
         { k: "barShadowStrength",   t: "real", min: 0.3,  max: 2.0 },
         { k: "barPosition",         t: "enum", vals: ["top", "bottom"] },
         { k: "barOpacity",          t: "real", min: 0.4,  max: 1.0 },
+        { k: "panelBlur",           t: "bool" },
+        { k: "panelBlurStrength",   t: "real", min: 0.1,  max: 1.0 },
         { k: "menuOpacity",         t: "real", min: 0.4,  max: 1.0 },
         { k: "barCustomColor",      t: "bool" },
+        { k: "barMatchMenuOpacity", t: "bool" },
         { k: "barDisabledMonitors", t: "re",   re: /^[A-Za-z0-9._,-]*$/ },
         { k: "overlayMonitor",      t: "re",   re: /^[A-Za-z0-9._-]*$/ },
         { k: "barWidgetOrderLeft",  t: "re",   re: /^[a-zA-Z]*(,[a-zA-Z]+)*$/ },
@@ -315,6 +331,7 @@ Singleton {
         case "real": { const n = parseFloat(v); if (!isNaN(n)) root[s.k] = Math.max(s.min, Math.min(s.max, n)); break }
         case "enum": if (s.vals.indexOf(v) >= 0) root[s.k] = v; break
         case "re":   if (typeof v === "string" && s.re.test(v)) root[s.k] = v; break
+        case "str":  if (typeof v === "string") root[s.k] = v; break
         }
     }
 

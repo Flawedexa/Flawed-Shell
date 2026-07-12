@@ -25,29 +25,33 @@ Singleton {
     }
 
     // wallpaper mode can accent from any material role (secondary/tertiary land in success/warning)
-    readonly property color _matuAccent: ShellSettings.matugenAccentRole === "secondary" ? MatugenTheme.success
-                                       : ShellSettings.matugenAccentRole === "tertiary"  ? MatugenTheme.warning
-                                       : MatugenTheme.accent
+    readonly property color _matuAccent: ShellSettings.matugenAccentRole === "secondary" ? MatugenColors.success
+                                       : ShellSettings.matugenAccentRole === "tertiary"  ? MatugenColors.warning
+                                       : MatugenColors.accent
 
     readonly property bool _w: ShellSettings.baseTone === "white"
 
-    readonly property color background: _n ? (_pal.background ?? MatugenTheme.background) : MatugenTheme.background
-    readonly property color surface:    _n ? (_pal.surface ?? MatugenTheme.surface)       : MatugenTheme.surface
-    readonly property color text:       _w ? "#2c2e33" : (_n ? "#f2f4f8" : MatugenTheme.text)
-    readonly property color subtext:    _w ? "#5a5d66" : (_n ? (_pal.subtext ?? MatugenTheme.subtext) : MatugenTheme.subtext)
-    readonly property color accent:     _n ? (ShellSettings.neutralAccentAuto ? MatugenTheme.accent : ShellSettings.neutralAccent) : _matuAccent
-    readonly property color error:      _n ? "#f7768e" : MatugenTheme.error
-    readonly property color warning:    _n ? "#e0af68" : MatugenTheme.warning
-    readonly property color success:    _n ? "#9ece6a" : MatugenTheme.success
+    readonly property color background: _n ? (_pal.background ?? MatugenColors.background) : MatugenColors.background
+    readonly property color surface:    _n ? (_pal.surface ?? MatugenColors.surface)       : MatugenColors.surface
+    readonly property color text:       _w ? "#2c2e33" : (_n ? "#f2f4f8" : MatugenColors.text)
+    readonly property color subtext:    _w ? "#5a5d66" : (_n ? (_pal.subtext ?? MatugenColors.subtext) : MatugenColors.subtext)
+    readonly property color accent:     _n ? (ShellSettings.neutralAccentAuto ? MatugenColors.accent : ShellSettings.neutralAccent) : _matuAccent
+    readonly property color error:      _n ? "#f7768e" : MatugenColors.error
+    readonly property color warning:    _n ? "#e0af68" : MatugenColors.warning
+    readonly property color success:    _n ? "#9ece6a" : MatugenColors.success
 
     // neutral mode keeps chrome neutral — accent only for active/focus/selected/status, not tinting every pane
     readonly property color outline: _n ? withAlpha(subtext, 0.14)
                                         : withAlpha(mix(subtext, accent, 0.22), 0.17)
 
-    readonly property color panel: ShellSettings.barCustomColor
-        ? withAlpha(mix(background, accent, 0.25), ShellSettings.barOpacity)
-        : _w ? withAlpha(background, ShellSettings.barOpacity)
-             : withAlpha("#000000", ShellSettings.barOpacity)
+    readonly property real _blurFactor: ShellSettings.panelBlur ? ShellSettings.panelBlurStrength : 1.0
+
+    readonly property color panel: ShellSettings.barMatchMenuOpacity
+        ? withAlpha(_menuBg, ShellSettings.menuOpacity * _blurFactor)
+        : ShellSettings.barCustomColor
+            ? withAlpha(mix(background, accent, 0.25), ShellSettings.barOpacity * _blurFactor)
+            : _w ? withAlpha(background, ShellSettings.barOpacity * _blurFactor)
+                 : withAlpha("#000000", ShellSettings.barOpacity * _blurFactor)
 
     // When base tone is "auto" the menu picks up the same accent-tinted background
     // the bar uses with barCustomColor, so the whole shell reads as one surface.

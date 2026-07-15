@@ -17,13 +17,13 @@ Singleton {
     property color warning:    "#e8b9d4"
     property color success:    "#c5c4dd"
 
-    function updateFromJson(jsonStr: string): void {
+    function updateFromJson(jsonStr) {
         try {
             const data = JSON.parse(jsonStr)
             const c = data?.colors
             if (!c) return
             const m = data?.mode ?? "dark"
-            const _g = (name: string, fallback: string): string => {
+            const _g = (name, fallback) => {
                 const entry = c[name]
                 if (!entry) return fallback
                 return entry[m]?.color ?? entry.default?.color ?? fallback

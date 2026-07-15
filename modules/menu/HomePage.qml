@@ -20,6 +20,11 @@ PageShell {
     readonly property int _sectionGap: 12
     readonly property int _itemGap: 8
 
+    readonly property string _userName: "Flawed"
+    readonly property string _avatarPath: ShellSettings.avatarPath && ShellSettings.avatarPath.length > 0
+        ? "file://" + ShellSettings.avatarPath
+        : ((Quickshell.env("HOME") ?? "").length > 0 ? "file://" + (Quickshell.env("HOME") ?? "") + "/.face" : "")
+
     function _togglePicker(which: string): void { _picker = (_picker === which ? "" : which) }
 
     // Escape steps back: close an open inline picker before the menu itself.
@@ -48,19 +53,72 @@ PageShell {
         width: parent.width
         spacing: 0
 
-        // Masthead — the date anchors the panel as a confident header, with the
-        // weekday carrying the weight and the full date sitting quieter beneath.
+        // Masthead — avatar (left) + greeting/name/date (right)
         Item {
             id: _header
             width: parent.width
-            height: 40
+            height: Math.max(_avatarItem.height, _headerTextCol.height)
+
+            Item {
+                id: _avatarItem
+                anchors.left: parent.left
+                anchors.top: parent.top
+                width: 72; height: 72
+
+                Image {
+                    id: _avatarImg
+                    anchors.fill: parent
+                    source: root._avatarPath
+                    sourceSize.width: 144; sourceSize.height: 144
+                    fillMode: Image.PreserveAspectCrop
+                    asynchronous: true
+                    cache: true
+                    visible: status === Image.Ready
+                }
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 36
+                    color: "transparent"
+                    border.width: 1
+                    border.color: Theme.withAlpha(Theme.subtext, 0.18)
+                    visible: _avatarImg.visible
+                }
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 36
+                    color: Theme.withAlpha(Theme.accent, 0.20)
+                    visible: !_avatarImg.visible
+                    Text {
+                        anchors.centerIn: parent
+                        text: root._userName.charAt(0)
+                        color: Theme.accent
+                        font.family: Settings.font
+                        font.pixelSize: Settings.fontSize + 12
+                        font.weight: Font.DemiBold
+                        renderType: Text.NativeRendering
+                    }
+                }
+                clip: true
+            }
 
             Column {
-                anchors.left: parent.left
+                id: _headerTextCol
+                anchors.left: _avatarItem.right; anchors.leftMargin: 14
                 anchors.right: _uptimeRow.visible ? _uptimeRow.left : parent.right
                 anchors.rightMargin: 12
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 1
+                anchors.verticalCenter: _avatarItem.verticalCenter
+                spacing: 3
+
+                Text {
+                    width: parent.width
+                    text: root._userName
+                    color: Theme.text
+                    font.family: Settings.font
+                    font.pixelSize: Settings.fontSize + 1
+                    font.weight: Font.DemiBold
+                    renderType: Text.NativeRendering
+                    elide: Text.ElideRight
+                }
 
                 Text {
                     width: parent.width
@@ -89,7 +147,7 @@ PageShell {
             Row {
                 id: _uptimeRow
                 anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.top: parent.top
                 spacing: 6
                 visible: SysInfo.uptimeSecs > 0
 

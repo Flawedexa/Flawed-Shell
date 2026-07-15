@@ -296,7 +296,7 @@ PageShell {
                                 return "#" + root._hex2(c.r) + root._hex2(c.g) + root._hex2(c.b)
                             }
                             function _accentForHue(h) { return _accentForHS(h, 0.72) }
-                            readonly property color _curColor: ShellSettings.neutralAccentAuto ? MatugenTheme.accent : ShellSettings.neutralAccent
+                            readonly property color _curColor: ShellSettings.neutralAccentAuto ? MatugenColors.accent : ShellSettings.neutralAccent
                             readonly property real  _curHue:   _curColor.hslHue < 0 ? 0 : _curColor.hslHue
                             readonly property real  _curSat:   isNaN(_curColor.hslSaturation) ? 0.72 : _curColor.hslSaturation
 
@@ -313,7 +313,7 @@ PageShell {
                             property string _hoverName: ""
                             // exact applied accent (matugen's when auto), for a precise readout
                             readonly property string _curHex: ShellSettings.neutralAccentAuto
-                                ? ("#" + root._hex2(MatugenTheme.accent.r) + root._hex2(MatugenTheme.accent.g) + root._hex2(MatugenTheme.accent.b)).toUpperCase()
+                                ? ("#" + root._hex2(MatugenColors.accent.r) + root._hex2(MatugenColors.accent.g) + root._hex2(MatugenColors.accent.b)).toUpperCase()
                                 : ShellSettings.neutralAccent.toUpperCase()
                             readonly property string _activeName: {
                                 if (ShellSettings.neutralAccentAuto) return "Auto  ·  " + _curHex
@@ -350,7 +350,7 @@ PageShell {
                                 spacing: Math.max(4, (width - 8 * 26) / 7)
 
                                 AccentSwatch {
-                                    chipColor: MatugenTheme.accent
+                                    chipColor: MatugenColors.accent
                                     name:      "Auto"
                                     active:    ShellSettings.neutralAccentAuto
                                     onPicked:  ShellSettings.neutralAccentAuto = true
@@ -464,7 +464,7 @@ PageShell {
                             currentValue: ShellSettings.baseTone
                             model: [
                                 { value: "black",    label: "Black",    color: "#030303" },
-                                { value: "auto",     label: "Auto",     color: MatugenTheme.background },
+                                { value: "auto",     label: "Auto",     color: MatugenColors.background },
                                 { value: "white",    label: "White",    color: "#f2f3f5" },
                                 { value: "custom",   label: "Custom"   }
                             ]
@@ -606,15 +606,20 @@ PageShell {
                                         height: 105
 
                                         readonly property var _roles: [
-                                            { key: "primary",   c: MatugenTheme.accent,  n: "Primary"   },
-                                            { key: "secondary", c: MatugenTheme.success, n: "Secondary" },
-                                            { key: "tertiary",  c: MatugenTheme.warning, n: "Tertiary"  }
+                                            { key: "primary",   n: "Primary"   },
+                                            { key: "secondary", n: "Secondary" },
+                                            { key: "tertiary",  n: "Tertiary"  }
                                         ]
+                                        function _colorForRole(key: string): color {
+                                            return key === "secondary" ? MatugenColors.success
+                                                 : key === "tertiary"  ? MatugenColors.warning
+                                                 :                       MatugenColors.accent
+                                        }
                                         property string _hoverName: ""
                                         function _hex(c) { return ("#" + root._hex2(c.r) + root._hex2(c.g) + root._hex2(c.b)).toUpperCase() }
                                         function _labelFor(name) {
                                             for (let i = 0; i < _roles.length; i++)
-                                                if (_roles[i].n === name) return _roles[i].n + "  ·  " + _hex(_roles[i].c)
+                                                if (_roles[i].n === name) return _roles[i].n + "  ·  " + _hex(_colorForRole(_roles[i].key))
                                             return name
                                         }
                                         readonly property string _activeName: {
@@ -693,7 +698,7 @@ PageShell {
                                                 delegate: AccentSwatch {
                                                     id: _mrSw
                                                     required property var modelData
-                                                    chipColor: modelData.c
+                                                    chipColor: _matuAccentRow._colorForRole(modelData.key)
                                                     name:      modelData.n
                                                     active:    ShellSettings.matugenAccentRole === modelData.key
                                                     onPicked:  ShellSettings.matugenAccentRole = modelData.key

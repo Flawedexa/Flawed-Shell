@@ -288,10 +288,12 @@ Item {
     Keys.onRightPressed:  event => { if (!event.isAutoRepeat) Media.next();       event.accepted = true }
 
     TapHandler {
-        acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+        acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
         onTapped: (eventPoint, button) => {
             if (button === Qt.MiddleButton)
                 HyprActions.focusMediaPlayer(Media.playerName, Media.title)
+            else if (button === Qt.RightButton)
+                MediaState.toggleAt(root.mapToItem(null, root.width / 2, 0).x, root.screen ? root.screen : null)
             else
                 Media.togglePlay()
         }

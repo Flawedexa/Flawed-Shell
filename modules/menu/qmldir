@@ -30,4 +30,6 @@ BluetoothList   1.0 BluetoothList.qml
 DraggableWidgetList 1.0 DraggableWidgetList.qml
 SliderTrack     1.0 SliderTrack.qml
 WallpaperSection 1.0 WallpaperSection.qml
+MediaPopup      1.0 MediaPopup.qml
+LauncherPopup   1.0 LauncherPopup.qml
 PageShell       1.0 PageShell.qml

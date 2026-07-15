@@ -1,6 +1,5 @@
 import QtQuick
 import Quickshell
-import Quickshell.Io
 import "../../../config"
 import "../../../services"
 import "../../common"
@@ -11,7 +10,8 @@ Pill {
     accessibleName: "Application launcher"
     accessibleDescription: "Open the application launcher"
 
-    readonly property bool toolAvailable: SystemTools.hasWofi
+    property var screen: null   // ShellScreen this bar sits on, for popup placement
+    readonly property bool toolAvailable: true
     readonly property bool show: ShellSettings.barShowLauncher && toolAvailable
     visible: opacity > 0.01
     opacity: show ? 1.0 : 0.0
@@ -22,8 +22,6 @@ Pill {
 
     interactive: show
 
-    Process { id: _launchProc }
-
     HoverHandler { cursorShape: Qt.PointingHandCursor; enabled: root.interactive }
 
     pressed: _tap.pressed
@@ -32,25 +30,8 @@ Pill {
         enabled: root.interactive
         acceptedButtons: Qt.LeftButton
         onTapped: {
-            if (!SystemTools.hasWofi) return
-            // Toggle: if already running, kill it; otherwise launch
-            if (_launchProc.running) {
-                _launchProc.close()
-                return
-            }
-            var sp = _tap.point.scenePosition
-            var gap = 4
-            function _rc(v) { return Math.round(v * 255) }
-            _launchProc.exec([
-                Quickshell.shellDir + "/scripts/wofi-launch.sh",
-                String(_rc(Theme.panel.r)), String(_rc(Theme.panel.g)), String(_rc(Theme.panel.b)), String(Theme.panel.a),
-                String(_rc(Theme.text.r)), String(_rc(Theme.text.g)), String(_rc(Theme.text.b)),
-                String(_rc(Theme.accent.r)), String(_rc(Theme.accent.g)), String(_rc(Theme.accent.b)),
-                String(_rc(Theme.panel.r)), String(_rc(Theme.panel.g)), String(_rc(Theme.panel.b)), String(Theme.panel.a),
-                String(Screen.width),
-                String(Math.round(sp.x)),
-                String(Math.round(sp.y + gap))
-            ])
+            const sp = _tap.point.scenePosition
+            LauncherState.toggleAt(sp.x, root.screen)
         }
     }
 }

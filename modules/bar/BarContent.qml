@@ -52,7 +52,7 @@ Item {
     Component { id: _cBrightness;  BrightnessWidget { anchors.verticalCenter: parent.verticalCenter; height: root.height } }
     Component { id: _cBattery;     BatteryWidget    { anchors.verticalCenter: parent.verticalCenter; height: root.height } }
     Component { id: _cMedia;       MediaWidget      { anchors.verticalCenter: parent.verticalCenter; height: root.height; screen: root.screen; textBudget: root.mediaTextBudget } }
-    Component { id: _cLauncher;   LauncherWidget   { anchors.verticalCenter: parent.verticalCenter; height: root.height } }
+    Component { id: _cLauncher;   LauncherWidget   { anchors.verticalCenter: parent.verticalCenter; height: root.height; screen: root.screen } }
     Component { id: _cClock;       Clock            { anchors.verticalCenter: parent.verticalCenter; screen: root.screen } }
 
     readonly property var _widgetComponents: ({

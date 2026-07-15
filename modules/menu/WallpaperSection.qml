@@ -40,11 +40,30 @@ Item {
             "d=\"" + dir + "\"; d=\"${d/#\\~/$HOME}\"; ls -1 \"$d\" 2>/dev/null | grep -iE '\\.(jpg|jpeg|png|gif|bmp|webp)$' | sort | while IFS= read -r f; do echo \"$d/$f\"; done"])
     }
 
+    readonly property string _configDir: {
+        const env = Quickshell.env("XDG_CONFIG_HOME")
+        const base = (env && String(env).length > 0)
+            ? String(env)
+            : String(Quickshell.env("HOME")) + "/.config"
+        return base + "/Flawed-Shell"
+    }
+    readonly property string _themeFile: root._configDir + "/last-theme.json"
+
+    FileView {
+        id: _themeStore
+        path: root._themeFile
+        atomicWrites: true
+        onLoaded: {
+            const text = _themeStore.text()
+            if (text && text.length > 0) MatugenColors.updateFromJson(text)
+        }
+    }
+
     Process {
         id: _scanner
         stdout: StdioCollector { id: _scanOut }
-        onExited: {
-            if (exitCode !== 0) { root._images = []; return }
+        onExited: (code) => {
+            if (code !== 0) { root._images = []; return }
             const lines = (_scanOut.text || "").split(/\r?\n/).filter(l => l.trim().length > 0)
             root._images = lines
             root._restoreOffset()
@@ -53,24 +72,44 @@ Item {
 
     Process {
         id: _setter
+        stdout: StdioCollector { }
     }
 
     Process {
         id: _matuGen
         stdout: StdioCollector { id: _matuOut }
-        onExited: {
-            if (exitCode !== 0) return
+        onExited: (code) => {
+            if (code !== 0) {
+                console.warn("Flawed-Shell: matugen exited with code", code)
+                return
+            }
             const raw = (_matuOut.text ?? "").trim()
-            // matugen outputs JSON to stdout; extract the actual JSON payload.
-            // The output may contain banner/log lines before the JSON block.
             const brace = raw.indexOf("{")
-            if (brace < 0) return
-            MatugenColors.updateFromJson(raw.substring(brace))
+            if (brace < 0) {
+                console.warn("Flawed-Shell: matugen output contains no JSON")
+                return
+            }
+            const json = raw.substring(brace)
+            MatugenColors.updateFromJson(json)
+            _themeStore.setText(json + "\n")
         }
     }
 
     onVisibleChanged: { if (visible) _scanWallpapers() }
-    Component.onCompleted: _scanWallpapers()
+    Component.onCompleted: {
+        _scanWallpapers()
+        if (ShellSettings.ready && ShellSettings.matugenAuto && ShellSettings.wallpaperCurrent)
+            _matuGen.exec(["matugen", "image", ShellSettings.wallpaperCurrent,
+                "--json", "hex", "--prefer", "darkness"])
+    }
+    Connections {
+        target: ShellSettings
+        function onReadyChanged() {
+            if (ShellSettings.ready && ShellSettings.matugenAuto && ShellSettings.wallpaperCurrent)
+                _matuGen.exec(["matugen", "image", ShellSettings.wallpaperCurrent,
+                    "--json", "hex", "--prefer", "darkness"])
+        }
+    }
 
     function _isActive(slot: int): bool {
         const idx = root._offset + slot

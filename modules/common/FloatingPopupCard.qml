@@ -59,7 +59,8 @@ Rectangle {
     }
 
     y: Math.round((barBottom ? (win.height - _edgeY - height) : _edgeY) + edgeOffset)
-    radius: Theme.radiusPanel
+    radius: ShellSettings.barRadius
+    clip: true
     antialiasing: true
     color: Theme.popup
     border.width: 1
@@ -67,7 +68,7 @@ Rectangle {
 
     transform: Scale { origin.x: root._originX; origin.y: root.barBottom ? root.height : 0; xScale: root.scaleAmt; yScale: root.scaleAmt }
     state: open ? "visible" : "hidden"
-    layer.enabled: !ShellSettings.reduceMotion && opacity > 0.001 && scaleAmt < 0.999
+    layer.enabled: opacity > 0.001
 
     Behavior on x {
         enabled: root.state === "visible" && !ShellSettings.reduceMotion && root._placementSettled

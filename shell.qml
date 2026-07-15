@@ -154,4 +154,14 @@ ShellRoot {
         wantOpen: QuickActionsState.open
         surface: Component { QuickActionsPopup { targetScreen: QuickActionsState.triggerScreen ?? root.activeOverlayScreen } }
     }
+
+    PopupLoader {
+        wantOpen: MediaState.open
+        surface: Component { MediaPopup { targetScreen: MediaState.triggerScreen ?? root.activeOverlayScreen } }
+    }
+
+    PopupLoader {
+        wantOpen: LauncherState.open
+        surface: Component { LauncherPopup { targetScreen: LauncherState.triggerScreen ?? root.activeOverlayScreen } }
+    }
 }

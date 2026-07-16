@@ -64,11 +64,10 @@ PanelWindow {
         anchorX: MediaState.anchorX
         barBottom: ShellSettings.barPosition === "bottom"
 
-        readonly property int _artH: 180
-        readonly property int _pad:  12
+        readonly property int _pad: 12
 
         width:  320
-        height: _inner.implicitHeight
+        height: _inner.height
         activeFocusOnTab: true
         Accessible.role: Accessible.Pane
         Accessible.name: "Media player"
@@ -84,268 +83,263 @@ PanelWindow {
             color: "transparent"
             layer.enabled: true
 
-            Column {
+            Item {
                 id: _inner
                 width: parent.width
-                spacing: 0
+                height: _row.implicitHeight + card._pad * 2
 
-                Item {
-                    width: parent.width
-                    height: card._artH
+                Row {
+                    id: _row
+                    anchors.left: parent.left
+                    anchors.leftMargin: card._pad
+                    anchors.right: parent.right
+                    anchors.rightMargin: card._pad
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 12
 
-                    ClippingRectangle {
-                        anchors.fill: parent
-                        radius: card.radius
-                        color: "transparent"
+                    // ── Album art (square thumbnail) ──
+                    Rectangle {
+                        id: _artBlock
+                        width: 84; height: 84
+                        radius: 10
+                        antialiasing: true
+                        clip: true
+                        color: Theme.menuCard
 
                         Image {
-                            id: _art
+                            id: _artImg
                             anchors.fill: parent
                             source: Media.stableArtUrl.length > 0 ? Media.stableArtUrl : ""
-                            sourceSize.width: 320; sourceSize.height: card._artH
+                            sourceSize.width: 84; sourceSize.height: 84
                             fillMode: Image.PreserveAspectCrop
                             asynchronous: true
                             cache: true
                             visible: status === Image.Ready
                         }
 
-                        Rectangle {
-                            anchors.fill: parent
-                            color: Theme.menuCard
-                            visible: _art.status !== Image.Ready
+                        Text {
+                            anchors.centerIn: parent
+                            visible: _artImg.status !== Image.Ready
+                            text: "󰝚"
+                            color: Theme.withAlpha(Theme.subtext, 0.20)
+                            font.family: Settings.font
+                            font.pixelSize: 28
+                            renderType: Text.NativeRendering
+                        }
+                    }
+
+                    // ── Text + seek + controls ──
+                    Column {
+                        width: parent.width - _artBlock.width - parent.spacing
+                        spacing: 2
+
+                        Text {
+                            width: parent.width
+                            visible: Media.identity.length > 0 && (Media.title.length > 0 || Media.artist.length > 0)
+                            text: (Media.identity ?? "").toUpperCase()
+                            color: Theme.withAlpha(Theme.accent, 0.65)
+                            font.family: Settings.font
+                            font.pixelSize: Settings.fontSize - 3
+                            font.letterSpacing: 1.2
+                            elide: Text.ElideRight
+                            renderType: Text.NativeRendering
+                        }
+
+                        Text {
+                            width: parent.width
+                            text: Media.title.length > 0 ? Media.title : "No track"
+                            color: Theme.text
+                            font.family: Settings.font
+                            font.pixelSize: Settings.fontSize + 1
+                            font.weight: Font.DemiBold
+                            elide: Text.ElideRight
+                            renderType: Text.NativeRendering
+                        }
+
+                        Text {
+                            width: parent.width
+                            text: Media.artist.length > 0 ? Media.artist : ""
+                            color: Theme.withAlpha(Theme.subtext, 0.78)
+                            font.family: Settings.font
+                            font.pixelSize: Settings.fontSize - 1
+                            elide: Text.ElideRight
+                            renderType: Text.NativeRendering
+                        }
+
+                        // ── Seek bar ──
+                        Item {
+                            id: _sb
+                            width: parent.width
+                            height: Media.hasPosition ? 22 : 0
+                            visible: Media.hasPosition
+                            clip: false
+
+                            property real _dragRatio: 0
+                            property bool _dragging: false
+                            property bool _hovered: false
+                            readonly property real _effectiveRatio: _dragging ? _dragRatio : Media.positionRatio
+
                             Text {
-                                anchors.centerIn: parent
-                                text: "󰝚"
-                                color: Theme.withAlpha(Theme.subtext, 0.20)
+                                id: _elapsed
+                                anchors.left: parent.left
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: Media.formatTime(_sb._dragging ? _sb._dragRatio * Media.length : Media.positionNow)
+                                color: Theme.withAlpha(Theme.text, 0.45)
                                 font.family: Settings.font
-                                font.pixelSize: 48
+                                font.pixelSize: Settings.fontSize - 3
+                                renderType: Text.NativeRendering
+                            }
+
+                            Rectangle {
+                                id: _track
+                                anchors.left: _elapsed.right; anchors.leftMargin: 6
+                                anchors.right: _total.left; anchors.rightMargin: 6
+                                anchors.verticalCenter: parent.verticalCenter
+                                height: 4
+                                radius: 2
+                                color: Theme.withAlpha(Theme.text, 0.15)
+
+                                Rectangle {
+                                    id: _fill
+                                    width: parent.width * _sb._effectiveRatio
+                                    height: parent.height
+                                    radius: 2
+                                    color: Theme.accent
+                                    Behavior on width {
+                                        enabled: !_sb._dragging && Media.playing
+                                        NumberAnimation { duration: 420; easing.type: Easing.Linear }
+                                    }
+                                }
+
+                                Rectangle {
+                                    id: _thumb
+                                    x: parent.width * _sb._effectiveRatio - width / 2
+                                    y: parent.height / 2 - height / 2
+                                    width: 12; height: 12; radius: 6
+                                    color: Theme.accent
+                                    visible: _sb._hovered || _sb._dragging
+                                    scale: _sb._dragging ? 1.0 : (_sb._hovered ? 0.85 : 0)
+                                    opacity: _sb._dragging ? 1.0 : (_sb._hovered ? 1.0 : 0)
+                                    Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
+                                    Behavior on opacity { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    hoverEnabled: true
+                                    onEntered: _sb._hovered = true
+                                    onExited: if (!_sb._dragging) _sb._hovered = false
+                                    onPressed: mouse => {
+                                        if (!Media.canSeek) return
+                                        _sb._dragging = true
+                                        _sb._hovered = true
+                                        _sb._dragRatio = Math.max(0, Math.min(1, mouse.x / width))
+                                    }
+                                    onPositionChanged: mouse => {
+                                        if (!_sb._dragging || !Media.canSeek) return
+                                        _sb._dragRatio = Math.max(0, Math.min(1, mouse.x / width))
+                                    }
+                                    onReleased: mouse => {
+                                        if (!_sb._dragging) return
+                                        _sb._dragging = false
+                                        if (!_sb._hovered) _sb._hovered = false
+                                        if (Media.canSeek) Media.seekToRatio(_sb._dragRatio)
+                                    }
+                                    onCanceled: {
+                                        if (_sb._dragging) {
+                                            _sb._dragging = false
+                                            if (!_sb._hovered) _sb._hovered = false
+                                        }
+                                    }
+                                }
+                            }
+
+                            Text {
+                                id: _total
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: Media.formatTime(Media.length)
+                                color: Theme.withAlpha(Theme.text, 0.38)
+                                font.family: Settings.font
+                                font.pixelSize: Settings.fontSize - 3
                                 renderType: Text.NativeRendering
                             }
                         }
-                    }
 
-                    Rectangle {
-                        anchors.bottom: parent.bottom
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        height: 60
-                        gradient: Gradient {
-                            orientation: Gradient.Vertical
-                            GradientStop { position: 0.0; color: "transparent" }
-                            GradientStop { position: 1.0; color: _art.visible ? Theme.menuCard : "transparent" }
-                        }
-                    }
-                }
+                        // ── Transport controls ──
+                        Row {
+                            spacing: 20
+                            anchors.horizontalCenter: parent.horizontalCenter
 
-                Column {
-                    width: parent.width
-                    spacing: 2
-                    padding: card._pad
-
-                    Text {
-                        width: parent.width - card._pad * 2
-                        text: Media.title.length > 0 ? Media.title : "No track"
-                        color: Theme.text
-                        font.family: Settings.font
-                        font.pixelSize: Settings.fontSize + 1
-                        font.weight: Font.DemiBold
-                        elide: Text.ElideRight
-                        renderType: Text.NativeRendering
-                    }
-
-                    Text {
-                        width: parent.width - card._pad * 2
-                        text: Media.artist.length > 0 ? Media.artist : (Media.identity.length > 0 ? Media.identity : "")
-                        color: Theme.withAlpha(Theme.subtext, 0.78)
-                        font.family: Settings.font
-                        font.pixelSize: Settings.fontSize - 1
-                        elide: Text.ElideRight
-                        renderType: Text.NativeRendering
-                    }
-                }
-
-                Item {
-                    id: _seekBar
-                    width: parent.width
-                    height: Media.hasPosition ? 34 : 0
-                    visible: Media.hasPosition
-
-                    property real _dragRatio: 0
-                    property bool _dragging: false
-                    property bool _hovered: false
-                    readonly property real _effectiveRatio: _dragging ? _dragRatio : Media.positionRatio
-
-                    Text {
-                        id: _elapsed
-                        anchors.left: parent.left; anchors.leftMargin: card._pad
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: Media.formatTime(_dragging ? _dragRatio * Media.length : Media.positionNow)
-                        color: Theme.withAlpha(Theme.text, 0.50)
-                        font.family: Settings.font
-                        font.pixelSize: Settings.fontSize - 3
-                        renderType: Text.NativeRendering
-                    }
-
-                    Rectangle {
-                        id: _track
-                        anchors.left: _elapsed.right; anchors.leftMargin: 6
-                        anchors.right: _total.left; anchors.rightMargin: 6
-                        anchors.verticalCenter: parent.verticalCenter
-                        height: 4
-                        radius: 2
-                        color: Theme.withAlpha(Theme.text, 0.15)
-
-                        Rectangle {
-                            id: _fill
-                            width: parent.width * _seekBar._effectiveRatio
-                            height: parent.height
-                            radius: 2
-                            color: Theme.accent
-                            Behavior on width {
-                                enabled: !_seekBar._dragging && Media.playing
-                                NumberAnimation { duration: 420; easing.type: Easing.Linear }
-                            }
-                        }
-
-                        Rectangle {
-                            id: _thumb
-                            x: parent.width * _seekBar._effectiveRatio - width / 2
-                            y: parent.height / 2 - height / 2
-                            width: 12
-                            height: 12
-                            radius: 6
-                            color: Theme.accent
-                            visible: _seekBar._hovered || _seekBar._dragging
-                            scale: _seekBar._dragging ? 1.0 : (_seekBar._hovered ? 0.85 : 0)
-                            opacity: _seekBar._dragging ? 1.0 : (_seekBar._hovered ? 1.0 : 0)
-                            Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
-                            Behavior on opacity { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
-                        }
-
-                        MouseArea {
-                            id: _dragMouse
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            hoverEnabled: true
-
-                            onEntered: _seekBar._hovered = true
-                            onExited: if (!_seekBar._dragging) _seekBar._hovered = false
-
-                            onPressed: mouse => {
-                                if (!Media.canSeek) return
-                                _seekBar._dragging = true
-                                _seekBar._hovered = true
-                                _seekBar._dragRatio = Math.max(0, Math.min(1, mouse.x / width))
-                            }
-
-                            onPositionChanged: mouse => {
-                                if (!_seekBar._dragging || !Media.canSeek) return
-                                _seekBar._dragRatio = Math.max(0, Math.min(1, mouse.x / width))
-                            }
-
-                            onReleased: mouse => {
-                                if (!_seekBar._dragging) return
-                                _seekBar._dragging = false
-                                if (!_seekBar._hovered) _seekBar._hovered = false
-                                if (Media.canSeek)
-                                    Media.seekToRatio(_seekBar._dragRatio)
-                            }
-
-                            onCanceled: {
-                                if (_seekBar._dragging) {
-                                    _seekBar._dragging = false
-                                    if (!_seekBar._hovered) _seekBar._hovered = false
+                            Item {
+                                width: 34; height: 34
+                                anchors.verticalCenter: parent.verticalCenter
+                                opacity: Media.player ? (Media.player.canGoPrevious ? 1.0 : 0.25) : 0.25
+                                HoverHandler { cursorShape: Qt.PointingHandCursor }
+                                TapHandler { onTapped: Media.previous() }
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "󰒮"
+                                    color: Theme.text
+                                    font.family: Settings.font
+                                    font.pixelSize: Settings.fontSize + 6
+                                    renderType: Text.NativeRendering
                                 }
                             }
-                        }
-                    }
 
-                    Text {
-                        id: _total
-                        anchors.right: parent.right; anchors.rightMargin: card._pad
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: Media.formatTime(Media.length)
-                        color: Theme.withAlpha(Theme.text, 0.42)
-                        font.family: Settings.font
-                        font.pixelSize: Settings.fontSize - 3
-                        renderType: Text.NativeRendering
-                    }
-                }
+                            Item {
+                                id: _playBtn
+                                width: 40; height: 40
+                                anchors.verticalCenter: parent.verticalCenter
+                                opacity: Media.player ? (Media.player.canTogglePlaying ? 1.0 : 0.25) : 0.25
 
-                Row {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 24
-                    padding: 8
+                                HoverHandler { id: _playH; cursorShape: Qt.PointingHandCursor }
+                                TapHandler { id: _playT; onTapped: Media.togglePlay() }
 
-                    Item {
-                        width: 36; height: 36
-                        anchors.verticalCenter: parent.verticalCenter
-                        opacity: Media.player ? (Media.player.canGoPrevious ? 1.0 : 0.25) : 0.25
+                                scale: _playT.pressed ? 0.85 : 1.0
+                                transformOrigin: Item.Center
+                                Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
 
-                        HoverHandler { cursorShape: Qt.PointingHandCursor }
-                        TapHandler { onTapped: Media.previous() }
+                                Rectangle {
+                                    anchors.fill: parent
+                                    radius: 20
+                                    color: Theme.withAlpha(Theme.accent, _playT.pressed ? 0.28 : (_playH.hovered ? 0.22 : 0.16))
+                                }
+                                Rectangle {
+                                    anchors.fill: parent
+                                    radius: 20
+                                    color: "transparent"
+                                    border.width: 1
+                                    border.color: Theme.withAlpha(Theme.accent, 0.30)
+                                }
 
-                        Text {
-                            anchors.centerIn: parent
-                            text: "󰒮"
-                            color: Theme.text
-                            font.family: Settings.font
-                            font.pixelSize: Settings.fontSize + 8
-                            renderType: Text.NativeRendering
-                        }
-                    }
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: Media.playing ? "󰏤" : "󰐊"
+                                    color: Theme.accent
+                                    font.family: Settings.font
+                                    font.pixelSize: Settings.fontSize + 10
+                                    renderType: Text.NativeRendering
+                                    Behavior on color { ColorAnimation { duration: 100 } }
+                                }
+                            }
 
-                    Item {
-                        width: 44; height: 44
-                        anchors.verticalCenter: parent.verticalCenter
-                        opacity: Media.player ? (Media.player.canTogglePlaying ? 1.0 : 0.25) : 0.25
-
-                        HoverHandler { id: _playH; cursorShape: Qt.PointingHandCursor }
-                        TapHandler { id: _playT; onTapped: Media.togglePlay() }
-
-                        scale: _playT.pressed ? 0.85 : 1.0
-                        transformOrigin: Item.Center
-                        Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
-
-                        Rectangle {
-                            anchors.fill: parent
-                            radius: 22
-                            color: Theme.withAlpha(Theme.accent, _playT.pressed ? 0.28 : (_playH.hovered ? 0.22 : 0.16))
-                        }
-                        Rectangle {
-                            anchors.fill: parent
-                            radius: 22
-                            color: "transparent"
-                            border.width: 1
-                            border.color: Theme.withAlpha(Theme.accent, 0.30)
-                        }
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: Media.playing ? "󰏤" : "󰐊"
-                            color: Theme.accent
-                            font.family: Settings.font
-                            font.pixelSize: Settings.fontSize + 12
-                            renderType: Text.NativeRendering
-                            Behavior on color { ColorAnimation { duration: 100 } }
-                        }
-                    }
-
-                    Item {
-                        width: 36; height: 36
-                        anchors.verticalCenter: parent.verticalCenter
-                        opacity: Media.player ? (Media.player.canGoNext ? 1.0 : 0.25) : 0.25
-
-                        HoverHandler { cursorShape: Qt.PointingHandCursor }
-                        TapHandler { onTapped: Media.next() }
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "󰒭"
-                            color: Theme.text
-                            font.family: Settings.font
-                            font.pixelSize: Settings.fontSize + 8
-                            renderType: Text.NativeRendering
+                            Item {
+                                width: 34; height: 34
+                                anchors.verticalCenter: parent.verticalCenter
+                                opacity: Media.player ? (Media.player.canGoNext ? 1.0 : 0.25) : 0.25
+                                HoverHandler { cursorShape: Qt.PointingHandCursor }
+                                TapHandler { onTapped: Media.next() }
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "󰒭"
+                                    color: Theme.text
+                                    font.family: Settings.font
+                                    font.pixelSize: Settings.fontSize + 6
+                                    renderType: Text.NativeRendering
+                                }
+                            }
                         }
                     }
                 }

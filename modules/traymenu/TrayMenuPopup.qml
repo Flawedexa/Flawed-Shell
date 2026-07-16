@@ -64,6 +64,145 @@ PanelWindow {
         win._sendRootOpened()
     }
 
+    // ── Submenu overlays (at win level, outside clipped Flickable) ──
+    property Item _subOwner:  null
+    property var  _subHandle: null
+    property Item _subOwner2: null
+    property var  _subHandle2: null
+
+    QsMenuOpener { id: _subOpener;  menu: win._subHandle }
+    QsMenuOpener { id: _subOpener2; menu: win._subHandle2 }
+
+    // Walk parent chain manually so QML tracks each parent's x/y as
+    // dependency bindings – mapToItem() results are NOT dependency-tracked.
+    function _walkUp(item: Item): var {
+        if (!item) return Qt.point(0, 0)
+        var x = 0, y = 0
+        var cur = item
+        while (cur && cur !== win) {
+            x += cur.x
+            y += cur.y
+            cur = cur.parent
+        }
+        return Qt.point(x, y)
+    }
+
+    function _getOverlayLevel(item: Item): int {
+        var p = item
+        while (p) {
+            if (p === _subOverlay2) return 2
+            if (p === _subOverlay)  return 1
+            p = p.parent
+        }
+        return 0
+    }
+
+    function _openSubmenu(entry: Item): void {
+        if (!entry || !entry.sub) return
+        if (win._subOwner === entry) return
+
+        win._closeSubmenu2()
+        if (win._subHandle !== null)
+            win._emitMenuSignal(win._subHandle, "closed", "sendClosed")
+
+        win._subOwner = entry
+        win._subHandle = entry.modelData
+
+        Qt.callLater(() => {
+            if (win._subHandle === entry.modelData)
+                win._emitMenuSignal(win._subHandle, "opened", "sendOpened")
+        })
+    }
+
+    function _toggleSubmenu(entry: Item): void {
+        if (!entry || !entry.sub) return
+        if (win._subOwner === entry) { win._closeSubmenu(); return }
+        win._openSubmenu(entry)
+    }
+
+    function _closeSubmenu(): void {
+        win._closeSubmenu2()
+        if (win._subHandle !== null)
+            win._emitMenuSignal(win._subHandle, "closed", "sendClosed")
+        win._subOwner = null
+        win._subHandle = null
+    }
+
+    function _openSubmenu2(entry: Item): void {
+        if (!entry || !entry.sub) return
+        if (win._subOwner2 === entry) return
+
+        if (win._subHandle2 !== null)
+            win._emitMenuSignal(win._subHandle2, "closed", "sendClosed")
+
+        win._subOwner2 = entry
+        win._subHandle2 = entry.modelData
+
+        Qt.callLater(() => {
+            if (win._subHandle2 === entry.modelData)
+                win._emitMenuSignal(win._subHandle2, "opened", "sendOpened")
+        })
+    }
+
+    function _toggleSubmenu2(entry: Item): void {
+        if (!entry || !entry.sub) return
+        if (win._subOwner2 === entry) { win._closeSubmenu2(); return }
+        win._openSubmenu2(entry)
+    }
+
+    function _closeSubmenu2(): void {
+        if (win._subHandle2 !== null)
+            win._emitMenuSignal(win._subHandle2, "closed", "sendClosed")
+        win._subOwner2 = null
+        win._subHandle2 = null
+    }
+
+    function _focusFirstSubItem(level: int): void {
+        const ov = level === 2 ? _subOverlay2 : _subOverlay
+        const col = level === 2 ? _subCol2 : _subCol
+        if (!ov || !ov.visible) return
+        const subs = col.children
+        for (let k = 0; k < subs.length; k++) {
+            const c = subs[k]
+            if (c && c.isMenuRow === true && c.on) { c.forceActiveFocus(); return }
+        }
+    }
+
+    readonly property bool _subVisible:  win._subOwner  !== null
+    readonly property bool _subVisible2: win._subOwner2 !== null
+
+    // Prevent flicker: wait for layout to settle before showing overlay.
+    property bool _subReady:  false
+    property bool _subReady2: false
+    on_SubOwnerChanged: {
+        if (win._subOwner) {
+            _subOverlay.opacity = 0
+            _subReady = false
+            _subReadyTimer.restart()
+        } else {
+            _subReady = false
+        }
+    }
+    on_SubOwner2Changed: {
+        if (win._subOwner2) {
+            _subOverlay2.opacity = 0
+            _subReady2 = false
+            _subReadyTimer2.restart()
+        } else {
+            _subReady2 = false
+        }
+    }
+    Timer {
+        id: _subReadyTimer
+        interval: 60
+        onTriggered: _subReady = true
+    }
+    Timer {
+        id: _subReadyTimer2
+        interval: 60
+        onTriggered: _subReady2 = true
+    }
+
     onVisibleChanged: if (!visible) win._setActiveMenu(null)
     // lazy-loaded after openAt() already set the handle, so the change signal
     // fired before this popup existed; seed from the current state on creation
@@ -105,6 +244,7 @@ PanelWindow {
         target: TrayMenuState
         function onOpenChanged() {
             if (!TrayMenuState.open) {
+                win._closeSubmenu()
                 _outsideTapGuard.stop()
                 win._ignoreOutsideTap = false
                 win._sendRootClosed()
@@ -158,6 +298,9 @@ PanelWindow {
             readonly property string iconSrc: modelData?.icon ?? ""
             // duck-type marker so focus movement can skip the Repeater and separators
             readonly property bool isMenuRow: !sep
+            readonly property int  _overlayLevel: win._getOverlayLevel(_entry)
+            readonly property bool subActive:  win._subOwner === _entry || win._subOwner2 === _entry
+            readonly property bool hovered:    _rowHover.hovered
 
             width: win.menuWidth
             height: sep ? 11 : 32
@@ -172,22 +315,28 @@ PanelWindow {
                     if (c && c.isMenuRow === true && c.on) { c.forceActiveFocus(); return }
                 }
             }
-            function _focusFirstSub(): void {
-                const subs = _subCol.children
-                for (let k = 0; k < subs.length; k++) {
-                    const c = subs[k]
-                    if (c && c.isMenuRow === true && c.on) { c.forceActiveFocus(); return }
-                }
+            function _focusFirstSub(level: int): void {
+                win._focusFirstSubItem(level)
             }
             function _activate(): void {
                 if (!_entry.on) return
                 if (_entry.sub) {
-                    _flyout.visible = !_flyout.visible
-                    if (_flyout.visible) Qt.callLater(_entry._focusFirstSub)
+                    if (_entry._overlayLevel >= 1) {
+                        win._toggleSubmenu2(_entry)
+                        if (win._subOwner2 === _entry) Qt.callLater(() => _entry._focusFirstSub(2))
+                    } else {
+                        win._toggleSubmenu(_entry)
+                        if (win._subOwner === _entry) Qt.callLater(() => _entry._focusFirstSub(1))
+                    }
                 } else {
                     win._emitMenuSignal(_entry.modelData, "triggered", "sendTriggered")
                     TrayMenuState.close()
                 }
+            }
+
+            Component.onDestruction: {
+                if (win._subOwner  === _entry) win._closeSubmenu()
+                if (win._subOwner2 === _entry) win._closeSubmenu2()
             }
 
             activeFocusOnTab: _entry.on
@@ -198,23 +347,24 @@ PanelWindow {
             Keys.onSpacePressed:  e => { if (!e.isAutoRepeat) _entry._activate(); e.accepted = true }
             Keys.onReturnPressed: e => { if (!e.isAutoRepeat) _entry._activate(); e.accepted = true }
             Keys.onEnterPressed:  e => { if (!e.isAutoRepeat) _entry._activate(); e.accepted = true }
-            Keys.onRightPressed:  e => {
+            Keys.onRightPressed: e => {
                 if (_entry.sub) {
-                    if (!_flyout.visible) _flyout.visible = true
-                    Qt.callLater(_entry._focusFirstSub)
+                    if (_entry._overlayLevel >= 1) {
+                        if (win._subOwner2 !== _entry) win._openSubmenu2(_entry)
+                        Qt.callLater(() => _entry._focusFirstSub(2))
+                    } else {
+                        if (win._subOwner !== _entry) win._openSubmenu(_entry)
+                        Qt.callLater(() => _entry._focusFirstSub(1))
+                    }
                     e.accepted = true
                 } else {
                     e.accepted = false
                 }
             }
             Keys.onLeftPressed: e => {
-                if (_entry.sub && _flyout.visible) { _flyout.visible = false; e.accepted = true }
+                if (win._subOwner2 === _entry) { win._closeSubmenu2(); e.accepted = true }
+                else if (win._subOwner === _entry) { win._closeSubmenu(); e.accepted = true }
                 else e.accepted = false
-            }
-
-            QsMenuOpener {
-                id: _subOpener
-                menu: _entry.sub ? _entry.modelData : null
             }
 
             Rectangle {
@@ -233,7 +383,7 @@ PanelWindow {
                 anchors.fill: parent
                 radius: Theme.radiusControl
                 antialiasing: true
-                color: (_entry.on && (_rowHover.hovered || _flyout.visible || _entry.activeFocus))
+                color: (_entry.on && (_entry.hovered || _entry.subActive || _entry.activeFocus))
                     ? Theme.withAlpha(Theme.menuHover, 0.12) : "transparent"
                 Behavior on color { enabled: !ShellSettings.reduceMotion; ColorAnimation { duration: Motion.fast } }
             }
@@ -242,7 +392,11 @@ PanelWindow {
                 id: _rowHover
                 enabled: _entry.on
                 cursorShape: Qt.PointingHandCursor
-                onHoveredChanged: if (hovered && _entry.sub) _flyout.visible = true
+                onHoveredChanged: {
+                    if (!hovered || !_entry.sub) return
+                    if (_entry._overlayLevel >= 1) win._openSubmenu2(_entry)
+                    else win._openSubmenu(_entry)
+                }
             }
             TapHandler {
                 enabled: _entry.on && !_entry.sub
@@ -253,7 +407,10 @@ PanelWindow {
             }
             TapHandler {
                 enabled: _entry.on && _entry.sub
-                onTapped: _flyout.visible = !_flyout.visible
+                onTapped: {
+                    if (_entry._overlayLevel >= 1) win._toggleSubmenu2(_entry)
+                    else win._toggleSubmenu(_entry)
+                }
             }
 
             Item {
@@ -328,81 +485,7 @@ PanelWindow {
                 }
             }
 
-            // flips to the left edge when it would run off-screen
-            Rectangle {
-                id: _flyout
-                visible: false
-                z: 10
-                readonly property real _w: win.menuWidth + pad * 2
-                readonly property int  pad: 6
-                readonly property point _origin: _entry.mapToItem(null, 0, 0)
-                readonly property bool  _flip: _origin.x + _entry.width + 4 + _w > win.width
-                readonly property real _panelH: Math.min(_subCol.implicitHeight + pad * 2, Math.max(48, win.height - 8))
-                readonly property real _targetY: Math.max(4 - _origin.y, Math.min(-pad, win.height - 4 - _origin.y - _panelH))
-                x: _flip ? -(_w + 4) : (_entry.width + 4)
-                y: _targetY
-                width:  _w
-                height: _panelH
-                radius: Math.min(win._cardRadius, height / 2)
-                antialiasing: true
-                color: Theme.popup
-                border.width: 1
-                border.color: Theme.outline
-
-                // apps populate submenu children lazily, only after the opened signal.
-                onVisibleChanged: {
-                    if (!_entry.sub) return
-                    if (visible) win._emitMenuSignal(_entry.modelData, "opened", "sendOpened")
-                    else win._emitMenuSignal(_entry.modelData, "closed", "sendClosed")
-                }
-                Component.onDestruction: if (_entry.sub && _flyout.visible) win._emitMenuSignal(_entry.modelData, "closed", "sendClosed")
-
-                HoverHandler { id: _flyHover }
-
-                Timer {
-                    id: _flyClose
-                    interval: 180
-                    onTriggered: if (!_rowHover.hovered && !_flyHover.hovered) _flyout.visible = false
-                }
-                Connections {
-                    target: _flyHover
-                    function onHoveredChanged() { if (!_flyHover.hovered) _flyClose.restart() }
-                }
-                Connections {
-                    target: _rowHover
-                    function onHoveredChanged() { if (!_rowHover.hovered && _flyout.visible) _flyClose.restart() }
-                }
-
-                Flickable {
-                    id: _subScroll
-                    x: _flyout.pad; y: _flyout.pad
-                    width: win.menuWidth
-                    height: Math.max(0, _flyout.height - _flyout.pad * 2)
-                    contentWidth: width
-                    contentHeight: _subCol.implicitHeight
-                    boundsBehavior: Flickable.StopAtBounds
-                    flickDeceleration: 1800
-                    maximumFlickVelocity: 2200
-                    clip: true
-                    interactive: contentHeight > height
-
-                    Column {
-                        id: _subCol
-                        width: win.menuWidth
-                        spacing: 1
-                        Repeater {
-                            model: _subOpener.children
-                            delegate: _rowDelegate
-                        }
-                    }
-                }
-
-                ListEdgeFade {
-                    anchors.fill: _subScroll
-                    visible: _subScroll.interactive
-                    list: _subScroll
-                }
-            }
+            // Close logic handled by win-level _subCloseWatch timer
         }
     }
 
@@ -478,6 +561,145 @@ PanelWindow {
             anchors.fill: _scroll
             visible: _scroll.interactive
             list: _scroll
+        }
+    }
+
+    // ── Submenu overlay (at win level so it is never clipped) ──────────────
+    Rectangle {
+        id: _subOverlay
+        visible: win._subVisible && win._subReady
+        opacity: 0
+        z: 20
+
+        Behavior on opacity { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
+        onVisibleChanged: if (visible) opacity = 1
+
+        readonly property Item _owner: win._subOwner
+        readonly property real _subW: win.menuWidth + 6 * 2
+        readonly property real _subH: Math.min(
+            _subCol.implicitHeight + 6 * 2, Math.max(48, win.height - 8))
+
+        // Position computed via win._walkUp (shared helper on win).
+        readonly property var _entryPos: win._walkUp(_owner)
+        readonly property real _entryWinX: _entryPos.x
+        readonly property real _entryWinY: _entryPos.y
+        readonly property real _entryW:    _owner ? _owner.width : 0
+        readonly property bool _flip: _entryWinX + _entryW + 4 + _subW > win.width
+
+        x: _flip ? _entryWinX - _subW - 4 : _entryWinX + _entryW + 4
+        y: _entryWinY + Math.max(
+            4 - _entryWinY,
+            Math.min(-6, win.height - 4 - _entryWinY - _subH)
+        )
+
+        width:  _subOverlay._subW
+        height: _subOverlay._subH
+        radius: Math.min(win._cardRadius, height / 2)
+        antialiasing: true
+        color: Theme.popup
+        border.width: 1
+        border.color: Theme.outline
+
+        HoverHandler { id: _subHover }
+
+        Flickable {
+            id: _subFlick
+            x: 6; y: 6
+            width: win.menuWidth
+            height: Math.max(0, _subOverlay.height - 12)
+            contentWidth: width
+            contentHeight: _subCol.implicitHeight
+            boundsBehavior: Flickable.StopAtBounds
+            flickDeceleration: 1800
+            maximumFlickVelocity: 2200
+            clip: true
+            interactive: contentHeight > height
+
+            Column {
+                id: _subCol
+                width: win.menuWidth
+                spacing: 1
+
+                Repeater {
+                    model: _subOpener.children
+                    delegate: _rowDelegate
+                }
+            }
+        }
+
+        ListEdgeFade {
+            anchors.fill: _subFlick
+            visible: _subFlick.interactive
+            list: _subFlick
+        }
+    }
+
+    // ── Submenu overlay level 2 (nested sub-submenus) ─────────────────────
+    Rectangle {
+        id: _subOverlay2
+        visible: win._subVisible2 && win._subReady2
+        opacity: 0
+        z: 25
+
+        Behavior on opacity { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
+        onVisibleChanged: if (visible) opacity = 1
+
+        readonly property Item _owner2: win._subOwner2
+        readonly property real _subW2: win.menuWidth + 6 * 2
+        readonly property real _subH2: Math.min(
+            _subCol2.implicitHeight + 6 * 2, Math.max(48, win.height - 8))
+
+        readonly property var _entryPos2: win._walkUp(_owner2)
+        readonly property real _entryWinX2: _entryPos2.x
+        readonly property real _entryWinY2: _entryPos2.y
+        readonly property real _entryW2: _owner2 ? _owner2.width : 0
+        readonly property bool _flip2: _entryWinX2 + _entryW2 + 4 + _subW2 > win.width
+
+        x: _flip2 ? _entryWinX2 - _subW2 - 4 : _entryWinX2 + _entryW2 + 4
+        y: _entryWinY2 + Math.max(
+            4 - _entryWinY2,
+            Math.min(-6, win.height - 4 - _entryWinY2 - _subH2)
+        )
+
+        width:  _subOverlay2._subW2
+        height: _subOverlay2._subH2
+        radius: Math.min(win._cardRadius, height / 2)
+        antialiasing: true
+        color: Theme.popup
+        border.width: 1
+        border.color: Theme.outline
+
+        HoverHandler { id: _subHover2 }
+
+        Flickable {
+            id: _subFlick2
+            x: 6; y: 6
+            width: win.menuWidth
+            height: Math.max(0, _subOverlay2.height - 12)
+            contentWidth: width
+            contentHeight: _subCol2.implicitHeight
+            boundsBehavior: Flickable.StopAtBounds
+            flickDeceleration: 1800
+            maximumFlickVelocity: 2200
+            clip: true
+            interactive: contentHeight > height
+
+            Column {
+                id: _subCol2
+                width: win.menuWidth
+                spacing: 1
+
+                Repeater {
+                    model: _subOpener2.children
+                    delegate: _rowDelegate
+                }
+            }
+        }
+
+        ListEdgeFade {
+            anchors.fill: _subFlick2
+            visible: _subFlick2.interactive
+            list: _subFlick2
         }
     }
 }

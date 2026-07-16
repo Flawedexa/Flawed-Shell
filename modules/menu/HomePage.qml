@@ -123,10 +123,10 @@ PageShell {
                 Text {
                     width: parent.width
                     text: DateTime.cachedWeekday
-                    color: Theme.text
+                    color: Theme.withAlpha(Theme.subtext, 0.78)
                     font.family: Settings.font
-                    font.pixelSize: Settings.fontSize + 5
-                    font.weight: Font.DemiBold
+                    font.pixelSize: Settings.fontSize
+                    font.weight: Font.Medium
                     renderType: Text.NativeRendering
                     elide: Text.ElideRight
                 }

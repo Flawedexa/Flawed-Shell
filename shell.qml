@@ -160,8 +160,25 @@ ShellRoot {
         surface: Component { MediaPopup { targetScreen: MediaState.triggerScreen ?? root.activeOverlayScreen } }
     }
 
+    Shortcut {
+        sequence: "Ctrl+Space"
+        context: Qt.ApplicationShortcut
+        enabled: true
+        onActivated: {
+            const screen = root.activeOverlayScreen
+            if (LauncherState.open) { LauncherState.close(); return }
+            const bar = screen ? screen.width / 2 : 960
+            LauncherState.toggleAt(bar, screen ?? Monitors.primary)
+        }
+    }
+
     PopupLoader {
         wantOpen: LauncherState.open
         surface: Component { LauncherPopup { targetScreen: LauncherState.triggerScreen ?? root.activeOverlayScreen } }
+    }
+
+    PopupLoader {
+        wantOpen: NotificationPopupState.open
+        surface: Component { NotificationPopup { targetScreen: NotificationPopupState.triggerScreen ?? root.activeOverlayScreen } }
     }
 }

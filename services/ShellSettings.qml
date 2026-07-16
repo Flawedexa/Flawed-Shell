@@ -34,6 +34,7 @@ Singleton {
     property bool   showWindowTitleApp:  false
     property bool   updatesWidget:       false
     property bool   trayWidget:          false
+    property bool   trayHoverLabels:     true
     property bool   valuesOnHover:       false
     property bool   batteryAutoHide:     false
     property bool   barShowBattery:      true
@@ -44,6 +45,8 @@ Singleton {
     property bool   barShowBrightness:   true
     property bool   barShowMedia:        true
     property bool   barShowLauncher:     true
+    property bool   barShowNotifications: true
+    property string userName:           ""
 
     property bool   osdEnabled:     true
     property int    osdTimeout:     2000
@@ -105,10 +108,10 @@ Singleton {
     property string barDisabledMonitors: ""        // comma-joined connector names whose bar is hidden
     property string overlayMonitor:      ""        // "" = follow focus; else a monitor connector name for notifs/OSD
 
-    readonly property var _allBarWidgetKeys: ["workspaces", "shellUpdate", "tray", "updates", "network", "volume", "brightness", "battery", "media", "launcher", "clock"]
+    readonly property var _allBarWidgetKeys: ["workspaces", "shellUpdate", "tray", "updates", "network", "volume", "brightness", "battery", "media", "launcher", "notifications", "clock"]
 
     property string barWidgetOrderLeft:  "workspaces"
-    property string barWidgetOrderRight: "launcher,shellUpdate,tray,updates,network,volume,brightness,battery,media,clock"
+    property string barWidgetOrderRight: "launcher,notifications,shellUpdate,tray,updates,network,volume,brightness,battery,media,clock"
 
     // self-healing: unknown/duplicate tokens dropped, and any key missing from both lists falls back to its default zone so a widget can't vanish
     readonly property var _zoneKeys: {
@@ -189,6 +192,7 @@ Singleton {
         battery:     { glyph: "󰂄", label: "Battery",         group: "levels", setting: "barShowBattery" },
         media:       { glyph: "󰝚", label: "Media",           group: "media",  setting: "barShowMedia" },
         launcher:    { glyph: "󰀻", label: "App launcher",    group: "shell",  setting: "barShowLauncher" },
+        notifications: { glyph: "󰂜", label: "Notifications",  group: "shell",  setting: "barShowNotifications" },
         clock:       { glyph: "󰅐", label: "Clock",           group: "clock",  setting: "barShowClock" }
     })
 
@@ -242,6 +246,7 @@ Singleton {
         { k: "showWindowTitleApp",  t: "bool" },
         { k: "updatesWidget",       t: "bool" },
         { k: "trayWidget",          t: "bool" },
+        { k: "trayHoverLabels",     t: "bool" },
         { k: "valuesOnHover",       t: "bool" },
         { k: "batteryAutoHide",     t: "bool" },
         { k: "barShowBattery",      t: "bool" },
@@ -252,6 +257,7 @@ Singleton {
         { k: "barShowBrightness",   t: "bool" },
         { k: "barShowMedia",        t: "bool" },
         { k: "barShowLauncher",     t: "bool" },
+        { k: "barShowNotifications", t: "bool" },
         { k: "osdEnabled",          t: "bool" },
         { k: "osdTimeout",          t: "int",  min: 500,  max: 10000 },
         { k: "osdKindFilter",       t: "enum", vals: ["both", "volume", "brightness"] },
@@ -265,6 +271,7 @@ Singleton {
         { k: "uiScale",             t: "real", min: 0.8, max: 1.25 },
         { k: "fontSize",            t: "int",  min: 9,  max: 16 },
         { k: "fontFamily",          t: "str" },
+        { k: "userName",            t: "str" },
         { k: "notifPopupEnabled",   t: "bool" },
         { k: "notifFullscreenSilence", t: "bool" },
         { k: "notifPosition",       t: "enum", vals: ["top-right", "top-left", "top-center"] },

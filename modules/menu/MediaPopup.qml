@@ -15,7 +15,6 @@ PanelWindow {
     required property ShellScreen targetScreen
 
     readonly property HyprlandMonitor _monitor: Hyprland.monitorFor(win.screen)
-    property bool _ignoreOutsideTap: false
 
     Connections {
         target: win._monitor
@@ -39,48 +38,12 @@ PanelWindow {
         function onOpenChanged() { if (MenuState.open && MediaState.open) MediaState.close() }
     }
 
-    Connections {
-        target: ShellSettings
-        function onBarPositionChanged() {
-            if (!MediaState.open) {
-                card.edgeOffset = card._closedOffset
-                return
-            }
-            win._ignoreOutsideTap = true
-            _outsideTapGuard.restart()
-        }
-    }
-
-    Connections {
-        target: MediaState
-        function onOpenChanged() {
-            if (!MediaState.open) {
-                _outsideTapGuard.stop()
-                win._ignoreOutsideTap = false
-            }
-        }
-    }
-
-    Timer {
-        id: _outsideTapGuard
-        interval: 250
-        repeat: false
-        onTriggered: win._ignoreOutsideTap = false
-    }
-
     Item { id: _fillArea; anchors.fill: parent }
     mask: Region { item: MediaState.open ? _fillArea : null }
 
-    TapHandler {
-        id: _dismiss
-        enabled: MediaState.open && card.scaleAmt > 0.95
-        onTapped: {
-            if (win._ignoreOutsideTap) return
-            const p = _dismiss.point.position
-            if (p.x < card.x || p.x > card.x + card.width ||
-                p.y < card.y || p.y > card.y + card.height)
-                MediaState.close()
-        }
+    OutsideTapDismiss {
+        state: MediaState
+        card: card
     }
 
     Loader {
@@ -202,15 +165,21 @@ PanelWindow {
                 }
 
                 Item {
+                    id: _seekBar
                     width: parent.width
                     height: Media.hasPosition ? 34 : 0
                     visible: Media.hasPosition
+
+                    property real _dragRatio: 0
+                    property bool _dragging: false
+                    property bool _hovered: false
+                    readonly property real _effectiveRatio: _dragging ? _dragRatio : Media.positionRatio
 
                     Text {
                         id: _elapsed
                         anchors.left: parent.left; anchors.leftMargin: card._pad
                         anchors.verticalCenter: parent.verticalCenter
-                        text: Media.formatTime(Media.positionNow)
+                        text: Media.formatTime(_dragging ? _dragRatio * Media.length : Media.positionNow)
                         color: Theme.withAlpha(Theme.text, 0.50)
                         font.family: Settings.font
                         font.pixelSize: Settings.fontSize - 3
@@ -218,6 +187,7 @@ PanelWindow {
                     }
 
                     Rectangle {
+                        id: _track
                         anchors.left: _elapsed.right; anchors.leftMargin: 6
                         anchors.right: _total.left; anchors.rightMargin: 6
                         anchors.verticalCenter: parent.verticalCenter
@@ -226,22 +196,66 @@ PanelWindow {
                         color: Theme.withAlpha(Theme.text, 0.15)
 
                         Rectangle {
-                            width: parent.width * Media.positionRatio
+                            id: _fill
+                            width: parent.width * _seekBar._effectiveRatio
                             height: parent.height
                             radius: 2
                             color: Theme.accent
                             Behavior on width {
-                                enabled: Media.playing
+                                enabled: !_seekBar._dragging && Media.playing
                                 NumberAnimation { duration: 420; easing.type: Easing.Linear }
                             }
                         }
 
+                        Rectangle {
+                            id: _thumb
+                            x: parent.width * _seekBar._effectiveRatio - width / 2
+                            y: parent.height / 2 - height / 2
+                            width: 12
+                            height: 12
+                            radius: 6
+                            color: Theme.accent
+                            visible: _seekBar._hovered || _seekBar._dragging
+                            scale: _seekBar._dragging ? 1.0 : (_seekBar._hovered ? 0.85 : 0)
+                            opacity: _seekBar._dragging ? 1.0 : (_seekBar._hovered ? 1.0 : 0)
+                            Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
+                            Behavior on opacity { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
+                        }
+
                         MouseArea {
+                            id: _dragMouse
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: {
+                            hoverEnabled: true
+
+                            onEntered: _seekBar._hovered = true
+                            onExited: if (!_seekBar._dragging) _seekBar._hovered = false
+
+                            onPressed: mouse => {
+                                if (!Media.canSeek) return
+                                _seekBar._dragging = true
+                                _seekBar._hovered = true
+                                _seekBar._dragRatio = Math.max(0, Math.min(1, mouse.x / width))
+                            }
+
+                            onPositionChanged: mouse => {
+                                if (!_seekBar._dragging || !Media.canSeek) return
+                                _seekBar._dragRatio = Math.max(0, Math.min(1, mouse.x / width))
+                            }
+
+                            onReleased: mouse => {
+                                if (!_seekBar._dragging) return
+                                _seekBar._dragging = false
+                                if (!_seekBar._hovered) _seekBar._hovered = false
                                 if (Media.canSeek)
-                                    Media.seekToRatio(mouse.x / width)
+                                    Media.seekToRatio(_seekBar._dragRatio)
+                            }
+
+                            onCanceled: {
+                                if (_seekBar._dragging) {
+                                    _seekBar._dragging = false
+                                    if (!_seekBar._hovered) _seekBar._hovered = false
+                                }
                             }
                         }
                     }

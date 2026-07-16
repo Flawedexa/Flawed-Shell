@@ -20,7 +20,7 @@ PageShell {
     readonly property int _sectionGap: 12
     readonly property int _itemGap: 8
 
-    readonly property string _userName: "Flawed"
+    readonly property string _userName: ShellSettings.userName.length > 0 ? ShellSettings.userName : Quickshell.env("USER") ?? "Flawed"
     readonly property string _avatarPath: ShellSettings.avatarPath && ShellSettings.avatarPath.length > 0
         ? "file://" + ShellSettings.avatarPath
         : ((Quickshell.env("HOME") ?? "").length > 0 ? "file://" + (Quickshell.env("HOME") ?? "") + "/.face" : "")

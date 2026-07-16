@@ -1268,6 +1268,11 @@ PageShell {
                         checked: ShellSettings.valuesOnHover
                         onToggled: ShellSettings.valuesOnHover = !ShellSettings.valuesOnHover
                     }
+                    ToggleRow {
+                        glyph: "󰇘"; label: "Tray hover labels"
+                        checked: ShellSettings.trayHoverLabels
+                        onToggled: ShellSettings.trayHoverLabels = !ShellSettings.trayHoverLabels
+                    }
                 }
 
                 SectionLabel { label: "WIDGETS" }

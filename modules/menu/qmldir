@@ -32,4 +32,5 @@ SliderTrack     1.0 SliderTrack.qml
 WallpaperSection 1.0 WallpaperSection.qml
 MediaPopup      1.0 MediaPopup.qml
 LauncherPopup   1.0 LauncherPopup.qml
+NotificationPopup 1.0 NotificationPopup.qml
 PageShell       1.0 PageShell.qml

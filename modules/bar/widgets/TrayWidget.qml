@@ -158,6 +158,7 @@ Item {
 
                 HoverHandler {
                     id: _iconHover
+                    enabled: ShellSettings.trayHoverLabels
                     onHoveredChanged: {
                         if (hovered) _labelDwell.restart()
                         else { _labelDwell.stop(); _tile._dwelled = false }

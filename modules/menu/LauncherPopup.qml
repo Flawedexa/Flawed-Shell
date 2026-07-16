@@ -15,7 +15,7 @@ PanelWindow {
     required property ShellScreen targetScreen
 
     readonly property HyprlandMonitor _monitor: Hyprland.monitorFor(win.screen)
-    property bool _ignoreOutsideTap: false
+    property var _recentApps: []
 
     Connections {
         target: win._monitor
@@ -39,45 +39,12 @@ PanelWindow {
         function onOpenChanged() { if (MenuState.open && LauncherState.open) LauncherState.close() }
     }
 
-    Connections {
-        target: ShellSettings
-        function onBarPositionChanged() {
-            if (!LauncherState.open) return
-            win._ignoreOutsideTap = true
-            _outsideTapGuard.restart()
-        }
-    }
-
-    Connections {
-        target: LauncherState
-        function onOpenChanged() {
-            if (!LauncherState.open) {
-                _outsideTapGuard.stop()
-                win._ignoreOutsideTap = false
-            }
-        }
-    }
-
-    Timer {
-        id: _outsideTapGuard
-        interval: 250
-        repeat: false
-        onTriggered: win._ignoreOutsideTap = false
-    }
-
     Item { id: _fillArea; anchors.fill: parent }
     mask: Region { item: LauncherState.open ? _fillArea : null }
 
-    TapHandler {
-        id: _dismiss
-        enabled: LauncherState.open && card.scaleAmt > 0.95
-        onTapped: {
-            if (win._ignoreOutsideTap) return
-            const p = _dismiss.point.position
-            if (p.x < card.x || p.x > card.x + card.width ||
-                p.y < card.y || p.y > card.y + card.height)
-                LauncherState.close()
-        }
+    OutsideTapDismiss {
+        state: LauncherState
+        card: card
     }
 
     Loader {
@@ -132,7 +99,11 @@ PanelWindow {
                         if (app) _launchApp(app.desktopId)
                     }
                 }
-                Keys.onDownPressed: event.accepted = true
+                Keys.onDownPressed: {
+                    event.accepted = true
+                    _listView.currentIndex = 0
+                    _listView.forceActiveFocus()
+                }
 
                 Rectangle {
                     anchors.fill: parent
@@ -168,6 +139,72 @@ PanelWindow {
                 }
             }
 
+            Column {
+                id: _recentSection
+                visible: _searchField.text.length === 0 && win._recentApps.length > 0
+                width: parent.width
+                spacing: 4
+
+                Text {
+                    text: "Recent"
+                    color: Theme.withAlpha(Theme.subtext, 0.5)
+                    font.family: Settings.font
+                    font.pixelSize: Settings.fontSize - 2
+                    font.weight: Font.Medium
+                    leftPadding: 6
+                    renderType: Text.NativeRendering
+                }
+
+                Repeater {
+                    model: win._recentApps
+
+                    delegate: Item {
+                        required property var modelData
+                        required property int index
+
+                        width: _recentSection.width
+                        height: 32
+
+                        Rectangle {
+                            anchors.fill: parent
+                            anchors.leftMargin: 2; anchors.rightMargin: 2
+                            radius: 6
+                            color: _recentHov.hovered
+                                ? Theme.withAlpha(Theme.accent, 0.12)
+                                : "transparent"
+
+                            HoverHandler { id: _recentHov; cursorShape: Qt.PointingHandCursor }
+
+                            TapHandler {
+                                onTapped: _launchApp(modelData.desktopId)
+                            }
+
+                            Text {
+                                anchors.left: parent.left; anchors.leftMargin: 8
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: "󰀻"
+                                color: Theme.withAlpha(Theme.subtext, 0.6)
+                                font.family: Settings.font
+                                font.pixelSize: Settings.fontSize + 2
+                                renderType: Text.NativeRendering
+                            }
+
+                            Text {
+                                anchors.left: parent.left; anchors.leftMargin: 34
+                                anchors.right: parent.right; anchors.rightMargin: 8
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: modelData.name
+                                color: Theme.text
+                                font.family: Settings.font
+                                font.pixelSize: Settings.fontSize
+                                elide: Text.ElideRight
+                                renderType: Text.NativeRendering
+                            }
+                        }
+                    }
+                }
+            }
+
             ListView {
                 id: _listView
                 width: parent.width
@@ -176,6 +213,30 @@ PanelWindow {
                 model: _grid._filtered
                 currentIndex: -1
                 boundsBehavior: Flickable.StopAtBounds
+                keyNavigationWraps: true
+                highlightRangeMode: ListView.StrictlyEnforceRange
+                highlightMoveDuration: 0
+                activeFocusOnTab: true
+
+                Keys.onUpPressed: {
+                    if (_listView.currentIndex <= 0) {
+                        event.accepted = true
+                        _searchField.forceActiveFocus()
+                        _searchField.selectAll()
+                    }
+                }
+                Keys.onReturnPressed: {
+                    const apps = _grid._filtered
+                    const idx = _listView.currentIndex
+                    if (idx >= 0 && idx < apps.length) {
+                        _launchApp(apps[idx].desktopId)
+                    }
+                }
+                Keys.onEscapePressed: {
+                    event.accepted = true
+                    _searchField.forceActiveFocus()
+                    _searchField.selectAll()
+                }
 
                 delegate: Item {
                     required property int index
@@ -188,7 +249,7 @@ PanelWindow {
                         anchors.fill: parent
                         anchors.leftMargin: 2; anchors.rightMargin: 2
                         radius: 8
-                        color: _hov.hovered || parent.activeFocus
+                        color: _hov.hovered || ListView.isCurrentItem
                             ? Theme.withAlpha(Theme.accent, 0.12)
                             : "transparent"
                         Behavior on color { ColorAnimation { duration: Motion.fast } }
@@ -274,12 +335,14 @@ PanelWindow {
             if (!_scanStarted) {
                 _scanStarted = true
                 _scanProc.exec(["bash", "-c",
-                    "for f in /usr/share/applications/*.desktop; do " +
-                    "  [ -f \"$f\" ] || continue; " +
-                    "  name=$(grep -m1 '^Name=' \"$f\" | sed 's/^Name=//'); " +
-                    "  icon=$(grep -m1 '^Icon=' \"$f\" | sed 's/^Icon=//'); " +
-                    "  id=$(basename \"$f\" .desktop); " +
-                    "  [ -n \"$name\" ] && echo \"{\\\"name\\\":\\\"$name\\\",\\\"icon\\\":\\\"$icon\\\",\\\"desktopId\\\":\\\"$id\\\"}\"; " +
+                    "for dir in /usr/share/applications ~/.local/share/applications; do " +
+                    "  for f in \"$dir\"/*.desktop; do " +
+                    "    [ -f \"$f\" ] || continue; " +
+                    "    name=$(grep -m1 '^Name=' \"$f\" | sed 's/^Name=//'); " +
+                    "    icon=$(grep -m1 '^Icon=' \"$f\" | sed 's/^Icon=//'); " +
+                    "    id=$(basename \"$f\" .desktop); " +
+                    "    [ -n \"$name\" ] && echo \"{\\\"name\\\":\\\"$name\\\",\\\"icon\\\":\\\"$icon\\\",\\\"desktopId\\\":\\\"$id\\\"}\"; " +
+                    "  done; " +
                     "done | jq -s . 2>/dev/null || echo '[]'"
                 ])
             }
@@ -287,6 +350,13 @@ PanelWindow {
     }
 
     function _launchApp(desktopId: string): void {
+        const app = _grid._all.find(a => a.desktopId === desktopId)
+        if (app) {
+            const idx = win._recentApps.indexOf(app)
+            if (idx >= 0) win._recentApps.splice(idx, 1)
+            win._recentApps.unshift(app)
+            if (win._recentApps.length > 5) win._recentApps.length = 5
+        }
         Quickshell.execDetached(["gtk-launch", desktopId])
         LauncherState.close()
     }

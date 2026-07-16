@@ -32,6 +32,7 @@ singleton SystemAlerts  1.0 SystemAlerts.qml
 singleton MatugenColors 1.0 MatugenColors.qml
 singleton MediaState   1.0 MediaState.qml
 singleton LauncherState 1.0 LauncherState.qml
+singleton NotificationPopupState 1.0 NotificationPopupState.qml
 singleton SystemTools   1.0 SystemTools.qml
 singleton TrayMenuState 1.0 TrayMenuState.qml
 singleton Updates       1.0 Updates.qml

@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import "../../config"
 import "../../services"
 
@@ -12,6 +13,37 @@ PageShell {
     scaleFrom: 0.985
     enterFade: 145; enterScale: 165; exitFade: 110
     scaleEasing: Easing.OutQuart
+
+    // Dynamically populated from fc-list; fallback list until process completes.
+    property var _fontModel: [
+        { value: "DejaVu Sans Mono",        label: "DejaVu Sans Mono" },
+        { value: "JetBrainsMono Nerd Font", label: "JetBrains Mono" },
+        { value: "Liberation Mono",         label: "Liberation Mono" },
+        { value: "Noto Sans Mono",          label: "Noto Sans Mono" },
+        { value: "Adwaita Mono",            label: "Adwaita Mono" },
+        { value: "monospace",               label: "monospace" }
+    ]
+
+    Process {
+        id: _fontListProc
+        onExited: (exitCode) => {
+            if (exitCode !== 0 || !_fontListProc.stdOut) return
+            const lines = _fontListProc.stdOut.trim().split("\n")
+            const model = []
+            const seen = {}
+            for (let i = 0; i < lines.length; i++) {
+                const name = lines[i].trim()
+                if (name.length > 0 && !seen[name]) {
+                    seen[name] = true
+                    model.push({ value: name, label: name })
+                }
+            }
+            if (model.length > 0)
+                root._fontModel = model
+        }
+    }
+
+    Component.onCompleted: _fontListProc.exec(["fc-list", "--format=%{family[0]}\n"])
 
     function _hex2(v) {
         const s = Math.round(Math.max(0, Math.min(1, v)) * 255).toString(16)
@@ -1145,7 +1177,7 @@ PageShell {
                         onChanged: (v) => ShellSettings.wsMarkerOpacity = v
                     }
                     ToggleRow {
-                        glyph: "󰀻"; label: "App icons"; badge: "beta"
+                        glyph: "󰀻"; label: "App icons"
                         description: "Shows up to three app icons on inactive occupied workspaces"
                         checked: ShellSettings.wsShowAppIcons
                         onToggled: ShellSettings.wsShowAppIcons = !ShellSettings.wsShowAppIcons
@@ -1363,7 +1395,7 @@ PageShell {
                     }
                     // Mode: floating pill vs bar-inline. Drives which sub-options apply.
                     ToggleRow {
-                        glyph: "󰀱"; label: "Show in bar"; badge: "beta"
+                        glyph: "󰀱"; label: "Show in bar"
                         description: "Uses the overlay monitor's bar center instead of the floating OSD pill"
                         enabled: ShellSettings.osdEnabled
                         checked: ShellSettings.osdBarIntegrated
@@ -1545,14 +1577,7 @@ PageShell {
                     SelectRow {
                         glyph: "󰑐"; label: "Font family"
                         currentValue: ShellSettings.fontFamily
-                        model: [
-                            { value: "DejaVu Sans Mono",        label: "DejaVu Sans Mono" },
-                            { value: "JetBrainsMono Nerd Font", label: "JetBrains Mono" },
-                            { value: "Liberation Mono",         label: "Liberation Mono" },
-                            { value: "Noto Sans Mono",          label: "Noto Sans Mono" },
-                            { value: "Adwaita Mono",            label: "Adwaita Mono" },
-                            { value: "monospace",               label: "monospace" }
-                        ]
+                        model: root._fontModel
                         onChosen: (v) => ShellSettings.fontFamily = v
                     }
                 }

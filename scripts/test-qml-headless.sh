@@ -16,8 +16,11 @@ cd "$ROOT"
 # modules/common/Pill.qml's `../../config`) made some otherwise-fine types
 # fail to resolve. Per-file qmlcachegen with explicit -I roots has no such
 # scoping and needs no component list to maintain.
+# Prefer the Qt6 build of these tools: the probe's flags (--only-bytecode, -I,
+# --import error) are Qt6-only, and a Qt5 binary on PATH (e.g. /usr/bin/
+# qmlcachegen from qt5-declarative) would reject them and fail every file.
+# Check the well-known Qt6 install paths first, then fall back to PATH.
 find_qmlcachegen() {
-    command -v qmlcachegen 2>/dev/null && return 0
     local candidate
     for candidate in \
         /usr/lib/qt6/qmlcachegen \
@@ -28,11 +31,11 @@ find_qmlcachegen() {
     do
         [ -x "$candidate" ] && { printf '%s\n' "$candidate"; return 0; }
     done
+    command -v qmlcachegen 2>/dev/null && return 0
     return 1
 }
 
 find_qmllint() {
-    command -v qmllint 2>/dev/null && return 0
     local candidate
     for candidate in \
         /usr/lib/qt6/bin/qmllint \
@@ -43,6 +46,7 @@ find_qmllint() {
     do
         [ -x "$candidate" ] && { printf '%s\n' "$candidate"; return 0; }
     done
+    command -v qmllint 2>/dev/null && return 0
     return 1
 }
 

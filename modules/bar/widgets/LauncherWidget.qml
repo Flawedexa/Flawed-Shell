@@ -34,4 +34,5 @@ Pill {
             LauncherState.toggleAt(sp.x, root.screen)
         }
     }
+
 }

@@ -185,6 +185,11 @@ PanelWindow {
         width: 216 + pad * 2
         height: _rows.implicitHeight + pad * 2
 
+        readonly property string _userName: ShellSettings.userName.length > 0 ? ShellSettings.userName : Quickshell.env("USER") ?? "you"
+        readonly property string _avatarPath: ShellSettings.avatarPath && ShellSettings.avatarPath.length > 0
+            ? "file://" + ShellSettings.avatarPath
+            : ((Quickshell.env("HOME") ?? "").length > 0 ? "file://" + (Quickshell.env("HOME") ?? "") + "/.face" : "")
+
         // The card holds focus on open (paints nothing); Down/Tab enters rows.
         function _focusFirstRow(): void {
             const sibs = _rows.children
@@ -202,6 +207,97 @@ PanelWindow {
             x: card.pad; y: card.pad
             width: 216
             spacing: 1
+
+            Item {
+                width: parent.width
+                height: 40
+
+                Item {
+                    id: _userAvatar
+                    width: 32; height: 32
+                    anchors.left: parent.left; anchors.leftMargin: 6
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 16
+                        color: "transparent"
+
+                        Rectangle {
+                            id: _avatarClip
+                            anchors.fill: parent
+                            radius: 16
+                            clip: true
+                            color: "transparent"
+
+                            Image {
+                                id: _userImg
+                                anchors.fill: parent
+                                source: card._avatarPath
+                                sourceSize.width: 64; sourceSize.height: 64
+                                fillMode: Image.PreserveAspectCrop
+                                asynchronous: true
+                                cache: true
+                                visible: status === Image.Ready && card._avatarPath.length > 0
+                            }
+                        }
+
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 16
+                            color: Theme.withAlpha(Theme.accent, 0.20)
+                            visible: _userImg.status !== Image.Ready || card._avatarPath.length === 0
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: card._userName.charAt(0)
+                                color: Theme.accent
+                                font.family: Settings.font
+                                font.pixelSize: Settings.fontSize + 8
+                                font.weight: Font.DemiBold
+                                renderType: Text.NativeRendering
+                            }
+                        }
+
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 16
+                            color: "transparent"
+                            border.width: 1
+                            border.color: Theme.withAlpha(Theme.subtext, 0.18)
+                        }
+                    }
+                }
+
+                Column {
+                    anchors.left: _userAvatar.right; anchors.leftMargin: 8
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 1
+
+                    Text {
+                        text: card._userName
+                        color: Theme.text
+                        font.family: Settings.font
+                        font.pixelSize: Settings.fontSize
+                        font.weight: Font.DemiBold
+                        renderType: Text.NativeRendering
+                    }
+                    Text {
+                        text: DateTime.cachedWeekday + ", " + DateTime.cachedMonthDay
+                        color: Theme.withAlpha(Theme.subtext, 0.68)
+                        font.family: Settings.font
+                        font.pixelSize: Settings.fontSize - 1
+                        renderType: Text.NativeRendering
+                    }
+                }
+            }
+
+            Rectangle {
+                width: parent.width - 16
+                height: 1
+                x: 8
+                color: Theme.withAlpha(Theme.subtext, 0.12)
+            }
 
             QuickActionRow {
                 glyph: Notifications.dnd ? "󰂛" : "󰂚"
